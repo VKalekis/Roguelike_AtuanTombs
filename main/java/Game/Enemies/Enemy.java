@@ -17,21 +17,29 @@ public class Enemy implements Entity {
     private final int experience;
     private final String announcementText;
     private Position position;
-    private final String textureName;
+    private final String sprite;
     private final Astar astar;
     private List<Position> nextMoves;
 
     public Enemy(String name, int hitpoints, Weapon weapon, int experience,
-                 String announcementText, String textureName) {
+                 String announcementText, String sprite) {
         this.hitpoints = hitpoints;
         this.name = name;
         this.weapon = weapon;
         this.experience = experience;
         this.announcementText = announcementText;
-        this.textureName = textureName;
+        this.sprite = sprite;
 
         astar = new Astar();
         nextMoves = new LinkedList<>();
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public String getAnnouncementText() {
+        return announcementText;
     }
 
     public int getHitpoints() {
@@ -42,8 +50,8 @@ public class Enemy implements Entity {
         return name;
     }
 
-    public Weapon getWeapon() {
-        return weapon;
+    public String getSprite() {
+        return sprite;
     }
 
     public int dealDamage() {
@@ -58,41 +66,27 @@ public class Enemy implements Entity {
         return position;
     }
 
-    public void moveEnemy(String dir){
-        position.shiftDir(dir);
-    }
-
     public void setStartingPosition(Position position) {
         this.position = position;
     }
 
-    public String getTextureName() {
-        return textureName;
+    public void runAstar(RoomMap roomMap, Position goal) {
+        nextMoves.clear();
+        nextMoves = astar.run(roomMap, roomMap.getMapTile(this.getPosition()), roomMap.getMapTile(goal));
     }
 
-    public void runAstar(RoomMap roomMap, MapTile goal) {
-        nextMoves = new LinkedList<>();
-        MapTile start = roomMap.getMapTile(this.getPosition());
-        nextMoves = astar.run(roomMap, start, goal);
-    }
-
-    public void moveEnemy(RoomMap roomMap) {
-        if (nextMoves.size()>1) {
-
-
-            if (roomMap.validMove(nextMoves.get(1))) {
-                roomMap.getMapTile(this.position).setEmpty();
-                position = nextMoves.get(1);
-                roomMap.getMapTile(this.position).setOccupiedEntity(this);
-            }
-            else {
-                System.out.println("Eisai malakas");
-            }
+    public Position getNextMove() {
+        try {
+            return nextMoves.get(1);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-
-
+    public void move(Position position) {
+        this.position = position;
+    }
 
     @Override
     public String toString() {

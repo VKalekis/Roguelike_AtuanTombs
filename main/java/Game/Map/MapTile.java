@@ -10,7 +10,7 @@ public class MapTile {
     private MapTileType mapTileType;
     private MapTileState mapTileState;
     private Position position;
-    private ArrayList<String> textureNames;
+    private ArrayList<String> sprites;
     private int TILE_WIDTH = 11;
     private int TILE_HEIGHT = 11;
     private int color;
@@ -21,7 +21,7 @@ public class MapTile {
         this.mapTileType = mapTileType;
         this.mapTileState = MapTileState.UNKNOWN;
         this.position = position;
-        this.textureNames = new ArrayList<>();
+        this.sprites = new ArrayList<>();
         this.color = 0;
         this.cost = 0;
         this.occupiedEntity = null;
@@ -113,17 +113,18 @@ public class MapTile {
                 '}';
     }
 
-    public ArrayList<String> getTextureNames() {
-        return textureNames;
+    public ArrayList<String> getSprites() {
+        return sprites;
     }
 
-    public void addTextureName(String textureName) {
-        this.textureNames.add(textureName);
+    public void addsprite(String sprite) {
+        this.sprites.add(sprite);
     }
 
     public void deleteTexture() {
-        this.textureNames = new ArrayList<>();
+        this.sprites = new ArrayList<>();
     }
+
     public double getDistance(MapTile mapTile1){
         return this.position.getDistance(mapTile1.getPosition());
     }

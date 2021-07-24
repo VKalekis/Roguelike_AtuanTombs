@@ -1,14 +1,11 @@
 package Game.PlayerSrc;
 
-import Game.Map.Position;
-
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
-public class Wizard extends AbstractPlayer {
+public class Warrior extends AbstractPlayer {
 
-    public Wizard() {
+    public Warrior() {
         super("wizard.png",
                 Arrays.asList(SlotType.WAND, SlotType.MAIN_HAND, SlotType.FINGER));
         setXPprogression();

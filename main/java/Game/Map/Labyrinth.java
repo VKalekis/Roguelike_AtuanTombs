@@ -19,7 +19,7 @@ public class Labyrinth {
 //
 //
 //            System.out.println("Current Room : " + currentRoom.toString());
-//            System.out.println("Available Rooms : " + currentRoom.getConnectedRooms());
+//            System.out.println("Available Rooms : " + currentRoom.getConnectedRoomsMap());
 //
 //
 //
@@ -59,7 +59,6 @@ public class Labyrinth {
             roomMap.cellularAutomata();
             //map.cellularAutomata();
             roomMap.floodFill();
-            roomMap.addEntrance();
             if (roomMap.getFillRate()>0.3){
                 roomMapArrayList.add(roomMap);
             }
@@ -75,8 +74,6 @@ public class Labyrinth {
         System.out.println(roomMapArrayList.get(0).getFillRate());
         System.out.println(roomMapArrayList.get(8).getFillRate());
         System.out.println(roomMapArrayList.stream().map((m)->m.getFillRate()).mapToDouble(Double::doubleValue).summaryStatistics());
-
-
 
         Room thePit = new Room("The Pit",
                 "A dark pit, where the voices of the damned echo.",
@@ -106,33 +103,49 @@ public class Labyrinth {
                 "The Great Hall of Throne.",
                 roomMapArrayList.get(8), true);
 
-
+        thePit.addEntrance();
         thePit.addConnectedRoom(theRoomOfChains);
         thePit.addConnectedRoom(theRoomOfBones);
+        thePit.setTextures();
 
+        theRoomOfChains.addEntrance();
         theRoomOfChains.addConnectedRoom(theRoomOfBones);
+        theRoomOfChains.setTextures();
 
+        theRoomOfBones.addEntrance();
         theRoomOfBones.addConnectedRoom(thePit);
         theRoomOfBones.addConnectedRoom(thePaintedRoom);
+        theRoomOfBones.setTextures();
 
+        thePaintedRoom.addEntrance();
         thePaintedRoom.addConnectedRoom(theTreasureRoom);
+        thePaintedRoom.setTextures();
 
+        theTreasureRoom.addEntrance();
         theTreasureRoom.addConnectedRoom(thePit);
         theTreasureRoom.addConnectedRoom(theUndertomb);
+        theTreasureRoom.setTextures();
 
+        theUndertomb.addEntrance();
         theUndertomb.addConnectedRoom(thePaintedRoom);
         theUndertomb.addConnectedRoom(thePit);
         theUndertomb.addConnectedRoom(theRedRockRoom);
         theUndertomb.addConnectedRoom(theUndergroundGarden);
+        theUndertomb.setTextures();
 
+        theRedRockRoom.addEntrance();
         theRedRockRoom.addConnectedRoom(thePit);
+        theRedRockRoom.setTextures();
 
+        theUndergroundGarden.addEntrance();
         theUndergroundGarden.addConnectedRoom(theUndertomb);
         theUndergroundGarden.addConnectedRoom(theHallOfThrone);
+        theUndergroundGarden.setTextures();
+
+        theHallOfThrone.addEntrance();
+        theHallOfThrone.setTextures();
 
         return thePit;
-
-
     }
 
 }

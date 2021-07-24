@@ -9,7 +9,8 @@ public class Room {
     private final String name;
     private final String description;
     private final RoomMap roomMap;
-    private Map<Position, Room> connectedRooms;
+    private Map<Position, Room> connectedRoomsMap;
+    private Position entrance;
 
     private boolean finalRoom;
 
@@ -17,7 +18,7 @@ public class Room {
         this.name = name;
         this.description = description;
         this.roomMap = roomMap;
-        this.connectedRooms = new HashMap<>();
+        this.connectedRoomsMap = new HashMap<>();
         this.finalRoom = false;
     }
 
@@ -30,16 +31,27 @@ public class Room {
         return finalRoom;
     }
 
+    public void addEntrance() {
+        entrance = roomMap.addEntrance();
+    }
+
     public void addConnectedRoom(Room connectedRoom) {
         Position pos = roomMap.addExit();
         System.out.println(pos+"///");
-        this.connectedRooms.put(pos, connectedRoom);
-        System.out.println(connectedRooms);
+        this.connectedRoomsMap.put(pos, connectedRoom);
+        System.out.println(connectedRoomsMap);
     }
 
-    public Room goTo(String name) {
-        Optional<Room> optionalRoom = this.connectedRooms.values().stream().filter((x)-> x.getName().equals(name)).findFirst();
-        return optionalRoom.orElse(null);
+    public void setTextures() {
+        roomMap.setFloorsTextures();
+        roomMap.setWallsTextures();
+
+    }
+
+    public Room goTo(Position position) {
+//        Optional<Room> optionalRoom = this.connectedRoomsMap.values().stream().filter((x)-> x.getName().equals(name)).findFirst();
+//        return optionalRoom.orElse(null);
+        return connectedRoomsMap.get(position);
     }
 
     public String getName() {
@@ -54,8 +66,12 @@ public class Room {
         return roomMap;
     }
 
+    public Position getEntrance() {
+        return entrance;
+    }
+
     public List<Room> getConnectedRooms11() {
-        return connectedRooms.values().stream().collect(Collectors.toList());
+        return connectedRoomsMap.values().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -64,10 +80,10 @@ public class Room {
     }
 
     public Room getFromMap(Position position) {
-        return connectedRooms.get(position);
+        return connectedRoomsMap.get(position);
     }
 
-    public Map<Position, Room> getConnectedRooms() {
-        return connectedRooms;
+    public boolean isExit(Position position) {
+        return connectedRoomsMap.containsKey(position);
     }
 }

@@ -1,6 +1,9 @@
 package Game.Map;
 
 import Game.Enemies.Enemy;
+import Game.Entity;
+import Game.Items.EquippableItem;
+import Game.Items.UsableItem;
 import Game.PlayerSrc.AbstractPlayer;
 
 import javax.imageio.ImageIO;
@@ -42,11 +45,11 @@ public class RoomMap {
     private void initializeImagesMap() {
 
         try {
-            //List<String> filenames = getImageFiles("");
+            List<String> filenames = getImageFiles("");
 
-            List<String> filenames = new LinkedList<>();
-            filenames = Arrays.asList(new String[]{"astar.png", "enemy.png", "floor_0.png", "floor_1.png",
-                    "floor_2.png", "floor_3.png", "floor_4.png", "floor_5.png", "floor_6.png", "floor_7.png", "floor_hole.png", "floor_ladder.png", "knight.png", "wall_banner_blue.png", "wall_banner_green.png", "wall_banner_red.png", "wall_banner_yellow.png", "wall_corner_left.png", "wall_corner_right.png", "wall_fountain_basin_blue.png", "wall_fountain_basin_red.png", "wall_fountain_mid_blue.png", "wall_fountain_mid_red.png", "wall_fountain_top.png", "wall_left.png", "wall_mid.png", "wall_right.png", "wall_side_mid_left.png", "wall_side_mid_right.png", "wall_top_mid.png", "wizard.png"});
+//            List<String> filenames = new LinkedList<>();
+//            filenames = Arrays.asList("astar.png", "enemy.png", "floor_0.png", "floor_1.png",
+//                    "floor_2.png", "floor_3.png", "floor_4.png", "floor_5.png", "floor_6.png", "floor_7.png", "floor_hole.png", "floor_ladder.png", "knight.png", "wall_banner_blue.png", "wall_banner_green.png", "wall_banner_red.png", "wall_banner_yellow.png", "wall_corner_left.png", "wall_corner_right.png", "wall_fountain_basin_blue.png", "wall_fountain_basin_red.png", "wall_fountain_mid_blue.png", "wall_fountain_mid_red.png", "wall_fountain_top.png", "wall_left.png", "wall_mid.png", "wall_right.png", "wall_side_mid_left.png", "wall_side_mid_right.png", "wall_top_mid.png", "wizard.png");
 
             System.out.println(filenames);
             ClassLoader classLoader = getClass().getClassLoader();
@@ -233,29 +236,7 @@ public class RoomMap {
     }
 
     public int getSurroundingWallsCardinalSum(int current_i, int current_j) {
-        int sum = 0;
-
-        if (current_i > 0) {
-            if (mapTiles[current_i - 1][current_j].getMapTileType() == MapTileType.WALL) {
-                sum++;
-            }
-        }
-        if (current_i < 61) {
-            if (mapTiles[current_i + 1][current_j].getMapTileType() == MapTileType.WALL) {
-                sum++;
-            }
-        }
-        if (current_j > 0) {
-            if (mapTiles[current_i][current_j - 1].getMapTileType() == MapTileType.WALL) {
-                sum++;
-            }
-        }
-        if (current_j < 61) {
-            if (mapTiles[current_i][current_j + 1].getMapTileType() == MapTileType.WALL) {
-                sum++;
-            }
-        }
-        return sum;
+        return getSurroundingCardinal(current_i, current_j, MapTileType.WALL).size();
     }
 
     public ArrayList<MapTile> getSurroundingCardinal(int current_i, int current_j, MapTileType mapTileType) {
@@ -287,9 +268,8 @@ public class RoomMap {
     public ArrayList<MapTile> getSurroundingCardinal(int current_i, int current_j, List<MapTileType> mapTileTypes) {
         ArrayList<MapTile> cardinalMapTileArrayList = new ArrayList<>();
 
-        for (MapTileType mapTileType : mapTileTypes
-        ) {
-            cardinalMapTileArrayList.addAll(getSurroundingCardinal(current_i,current_j,mapTileType));
+        for (MapTileType mapTileType : mapTileTypes) {
+            cardinalMapTileArrayList.addAll(getSurroundingCardinal(current_i, current_j, mapTileType));
         }
         return cardinalMapTileArrayList;
     }
@@ -352,7 +332,7 @@ public class RoomMap {
         }
     }
 
-    public void drawFocusedMap(Graphics g, AbstractPlayer player, List<Enemy> enemies) {
+    public void drawFocusedMap(Graphics g, AbstractPlayer player, List<Enemy> enemies, Map<Position, UsableItem> potionMap, Map<Position, EquippableItem> itemMap) {
         Graphics2D g2d = (Graphics2D) g;
 
         System.out.println("Player position:" + player.getPosition());
@@ -388,6 +368,10 @@ public class RoomMap {
         drawPlayer(g, player, camera_i, camera_j);
         // Draw Enemy
         drawEnemies(g, enemies, camera_i, camera_j);
+        // Draw Potions
+        drawPotions(g, potionMap, camera_i, camera_j);
+        // Draw items
+        drawItems(g,itemMap,camera_i,camera_j);
 
         // Draw visibility overlay over each tile.
         for (int i = camera_i; i < camera_i + camera.getScreenSize(); i++) {
@@ -427,45 +411,53 @@ public class RoomMap {
                 // W3
                 // Draw W2 as left wall side.
                 if ((wall_i > 0) && (wall_i < 60) && (mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.FLOOR) && (mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.WALL) && (mapTiles[wall_i][wall_j - 1].getMapTileType() == MapTileType.WALL)) {
-                    //wall.addTextureName("img_side_left");
-                    mapTiles[wall_i + 1][wall_j].addTextureName("wall_side_mid_right.png");
+                    //wall.addsprite("img_side_left");
+                    mapTiles[wall_i + 1][wall_j].addsprite("wall_side_mid_right.png");
                 }
                 //   W1
                 // F W2
                 //   W3
                 // Draw W2 as right wall side.
                 else if ((wall_i < 61) && (wall_i > 1) && (mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.FLOOR) && (mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.WALL) && (mapTiles[wall_i][wall_j - 1].getMapTileType() == MapTileType.WALL)) {
-                    //wall.addTextureName("img_side_right");
-                    mapTiles[wall_i - 1][wall_j].addTextureName("wall_side_mid_left.png");
+                    //wall.addsprite("img_side_right");
+                    mapTiles[wall_i - 1][wall_j].addsprite("wall_side_mid_left.png");
                 } else {
 
                     // W W<-
                     // W F
                     if (wall_i > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.FLOOR) {
-                        wall.addTextureName("wall_corner_left.png");
-//                        // Subcase:
-//                        // W W W
-//                        // W F W
-//                        if (wall_i<61 && wall_j>1 && mapTiles[wall_i+1][wall_j-1].getMapTileType()==MapTileType.WALL && mapTiles[wall_i+1][wall_j].getMapTileType()==MapTileType.WALL) {
-//                            wall.addTextureName("wall_side_mid_left.png");
-//                        }
+                        wall.addsprite("wall_corner_left.png");
+                        // Subcase:
+                        // W W W
+                        // W F W
+                        if (wall_i < 61 && wall_j > 1 && mapTiles[wall_i + 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
+                            wall.addsprite("wall_side_mid_left.png");
+                        }
                     }
                     // ->W W
                     //   F W
                     else if (wall_i < 60 && wall_j < 60 && mapTiles[wall_i + 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.FLOOR) {
-                        wall.addTextureName("wall_corner_right.png");
+                        wall.addsprite("wall_corner_right.png");
+
+                        // Subcase:
+                        // W W W
+                        // W F W
+                        if (wall_i > 1 && wall_j > 1 && mapTiles[wall_i - 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL) {
+                            wall.addsprite("wall_side_mid_right.png");
+                        }
                     }
                     //F W<-
                     //W W
                     else if (wall_i > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.FLOOR) {
-                        wall.addTextureName("wall_corner_left.png");
+                        wall.addsprite("wall_corner_left.png");
+
                     }
                     // ->W F
                     //   W W
                     else if (wall_i < 60 && wall_j < 60 && mapTiles[wall_i + 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.FLOOR) {
-                        wall.addTextureName("wall_corner_right.png");
+                        wall.addsprite("wall_corner_right.png");
                     } else {
-                        wall.addTextureName("wall_mid.png");
+                        wall.addsprite("wall_mid.png");
 
                         if (wall_j < 60 && mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.FLOOR) {
 
@@ -473,42 +465,36 @@ public class RoomMap {
                             int rnd = random.nextInt(50);
 
                             if (rnd == 49) {
-                                wall.addTextureName("wall_banner_blue.png");
+                                wall.addsprite("wall_banner_blue.png");
                             } else if (rnd == 48) {
-                                wall.addTextureName("wall_banner_green.png");
+                                wall.addsprite("wall_banner_green.png");
                             } else if (rnd == 47) {
-                                wall.addTextureName("wall_banner_red.png");
+                                wall.addsprite("wall_banner_red.png");
                             } else if (rnd == 46) {
-                                wall.addTextureName("wall_banner_yellow.png");
+                                wall.addsprite("wall_banner_yellow.png");
                             } else if (rnd == 45) {
                                 if (wall_i > 1 && wall_i < 60 && wall_j > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL
                                         && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
 
-                                    mapTiles[wall_i][wall_j + 1].addTextureName("wall_fountain_basin_blue.png");
-                                    wall.addTextureName("wall_fountain_mid_blue.png");
-                                    mapTiles[wall_i][wall_j - 1].addTextureName("wall_fountain_top.png");
+                                    mapTiles[wall_i][wall_j + 1].addsprite("wall_fountain_basin_blue.png");
+                                    wall.addsprite("wall_fountain_mid_blue.png");
+                                    mapTiles[wall_i][wall_j - 1].addsprite("wall_fountain_top.png");
                                 }
                             } else if (rnd == 44) {
                                 if (wall_i > 1 && wall_i < 60 && wall_j > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL
                                         && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
 
-                                    mapTiles[wall_i][wall_j + 1].addTextureName("wall_fountain_basin_red.png");
-                                    wall.addTextureName("wall_fountain_mid_red.png");
-                                    mapTiles[wall_i][wall_j - 1].addTextureName("wall_fountain_top.png");
+                                    mapTiles[wall_i][wall_j + 1].addsprite("wall_fountain_basin_red.png");
+                                    wall.addsprite("wall_fountain_mid_red.png");
+                                    mapTiles[wall_i][wall_j - 1].addsprite("wall_fountain_top.png");
                                 }
-                            } else {
-                                // Default
-                                wall.addTextureName("wall_mid.png");
                             }
-                        } else {
-                            // Default
-                            wall.addTextureName("wall_mid.png");
                         }
 
                     }
                     // Insert top wall texture at non-border walls.
                     if (wall_j > 1 && wall_i > 0 && wall_i < 61) {
-                        mapTiles[wall_i][wall_j - 1].addTextureName("wall_top_mid.png");
+                        mapTiles[wall_i][wall_j - 1].addsprite("wall_top_mid.png");
                     }
                 }
 
@@ -522,11 +508,11 @@ public class RoomMap {
     public void setFloorsTextures() {
         for (MapTile floor : floors) {
             if (floor.getMapTileType() == MapTileType.EXIT) {
-                floor.addTextureName("floor_ladder.png");
+                floor.addsprite("floor_ladder.png");
             } else if (floor.getMapTileType() == MapTileType.ENTRANCE) {
                 System.out.println(floor.getPosition() + "Im an Entrance");
-                floor.addTextureName("floor_hole.png");
-                System.out.println(floor.getTextureNames());
+                floor.addsprite("floor_hole.png");
+                System.out.println(floor.getSprites());
             } else {
                 int rand = new Random().nextInt(100) + 1;
                 int prob = (rand / 65) * ((rand - 65) % 7);
@@ -536,7 +522,7 @@ public class RoomMap {
                 //1-51 -> floor0 (rand/51=0 -> prob=0)
                 //52-100 -> assigned to floor1,...floor7 with the same probability using modulo function.
                 // rand/51=1 -> rand-51 % 7
-                floor.addTextureName("floor_" + prob + ".png");
+                floor.addsprite("floor_" + prob + ".png");
             }
 
         }
@@ -551,7 +537,7 @@ public class RoomMap {
             int wall_j = wall.getPosition().getJ();
             if ((wall_i >= camera_i) && (wall_i < camera_i + camera.getScreenSize()) &&
                     (wall_j >= camera_j) && (wall_j < camera_j + camera.getScreenSize())) {
-                for (String texture : wall.getTextureNames()) {
+                for (String texture : wall.getSprites()) {
                     g2d.drawImage(imagesMap.get(texture), (wall_i - camera_i) * 16, (wall_j - camera_j) * 16, null);
                 }
             }
@@ -562,14 +548,13 @@ public class RoomMap {
     public void drawFloors(Graphics g, int camera_i, int camera_j) {
         Graphics2D g2d = (Graphics2D) g;
 
-
         for (MapTile floor : floors) {
             if ((floor.getPosition().getI() >= camera_i) && (floor.getPosition().getI() < camera_i + camera.getScreenSize()) &&
                     (floor.getPosition().getJ() >= camera_j) && (floor.getPosition().getJ() < camera_j + camera.getScreenSize())) {
                 int floor_i = floor.getPosition().getI();
                 int floor_j = floor.getPosition().getJ();
 
-                for (String texture : floor.getTextureNames()) {
+                for (String texture : floor.getSprites()) {
                     if (texture.equals("floor_hole.png")) {
                         System.out.println("FOUNDIT" + floor.getPosition());
                     }
@@ -583,7 +568,7 @@ public class RoomMap {
 
     public void drawPlayer(Graphics g, AbstractPlayer player, int camera_i, int camera_j) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(imagesMap.get(player.getTextureName()), (player.getPosition().getI() - camera_i) * 16, (player.getPosition().getJ() - 1 - camera_j) * 16, null);
+        g2d.drawImage(imagesMap.get(player.getSprite()), (player.getPosition().getI() - camera_i) * 16, (player.getPosition().getJ() - 1 - camera_j) * 16, null);
         //getJ - 1 : the mage texture is > 16x16. We draw it at the tile above.
     }
 
@@ -591,14 +576,43 @@ public class RoomMap {
         Graphics2D g2d = (Graphics2D) g;
 
         for (Enemy enemy : enemies) {
-            g2d.drawImage(imagesMap.get(enemy.getTextureName()), (enemy.getPosition().getI() - camera_i) * 16, (enemy.getPosition().getJ() - camera_j) * 16, null);
+            if ((enemy.getPosition().getI() >= camera_i) && (enemy.getPosition().getI() < camera_i + camera.getScreenSize()) &&
+                    (enemy.getPosition().getJ() >= camera_j) && (enemy.getPosition().getJ() < camera_j + camera.getScreenSize())) {
+
+                g2d.drawImage(imagesMap.get(enemy.getSprite()), (enemy.getPosition().getI() - camera_i) * 16, (enemy.getPosition().getJ() - camera_j) * 16, null);
+            }
+        }
+    }
+
+    public void drawPotions(Graphics g, Map<Position, UsableItem> potionMap, int camera_i, int camera_j) {
+        Graphics2D g2d = (Graphics2D) g;
+        for (Map.Entry<Position,UsableItem> entry : potionMap.entrySet()) {
+            Position position = entry.getKey();
+            System.out.println(position);
+            if ((position.getI() >= camera_i) && (position.getI() < camera_i + camera.getScreenSize()) &&
+                    (position.getJ() >= camera_j) && (position.getJ() < camera_j + camera.getScreenSize())) {
+                System.out.println("Drawn");
+                g2d.drawImage(imagesMap.get(entry.getValue().getSprite()), (position.getI() - camera_i) * 16, (position.getJ() - camera_j) * 16, null);
+            }
+        }
+    }
+
+    public void drawItems(Graphics g, Map<Position, EquippableItem> itemMap, int camera_i, int camera_j) {
+        Graphics2D g2d = (Graphics2D) g;
+        for (Map.Entry<Position,EquippableItem> entry : itemMap.entrySet()) {
+            Position position = entry.getKey();
+            System.out.println(position);
+            if ((position.getI() >= camera_i) && (position.getI() < camera_i + camera.getScreenSize()) &&
+                    (position.getJ() >= camera_j) && (position.getJ() < camera_j + camera.getScreenSize())) {
+                System.out.println("Drawn");
+                g2d.drawImage(imagesMap.get(entry.getValue().getSprite()), (position.getI() - camera_i) * 16, (position.getJ() - camera_j) * 16, null);
+            }
         }
     }
 
     public boolean tileVisible(int x1, int y1, int x2, int y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) < 15;
     }
-
 
     public Position addEntrance() {
         Random random = new Random();
@@ -634,6 +648,14 @@ public class RoomMap {
 
     public ArrayList<MapTile> getExits() {
         return exits;
+    }
+
+    public void setOccupiedMapTile(Entity entity) {
+        mapTiles[entity.getPosition().getI()][entity.getPosition().getJ()].setOccupiedEntity(entity);
+    }
+
+    public void setEmptyMapTile(Entity entity) {
+        mapTiles[entity.getPosition().getI()][entity.getPosition().getJ()].setEmpty();
     }
 
     public MapTile getMapTile(Position position) {

@@ -1,18 +1,14 @@
 package Game.PlayerSrc;
 
 import Game.Entity;
+import Game.Items.*;
 import Game.Map.Position;
-import Game.Items.EffectType;
-import Game.Items.Usable;
-import Game.Items.Equippable;
-import Game.Items.Item;
-import Game.Items.ItemEffect;
 
 import java.util.*;
 
 public abstract class AbstractPlayer implements Entity {
     protected Position position;
-    protected String textureName;
+    protected String sprite;
     protected int maxHitPoints, hitPoints;
     protected int maxManaPoints, manaPoints;
     protected int strength;
@@ -25,12 +21,13 @@ public abstract class AbstractPlayer implements Entity {
 
     protected Map<SlotType, Equippable> slotsAndEquippables;
     protected List<Item> inventory;
+    protected int inventoryCursor;
 
-    public abstract void setXPprogression();
+    protected abstract void setXPprogression();
 
-    public abstract void setStatsProgression();
+    protected abstract void setStatsProgression();
 
-    public AbstractPlayer(Position position, String textureName, List<SlotType> availableSlots) {
+    public AbstractPlayer(String sprite, List<SlotType> availableSlots) {
 
 //        this.strength = baseStrength;
 //        this.intelligence = baseIntelligence;
@@ -39,8 +36,8 @@ public abstract class AbstractPlayer implements Entity {
 //        this.maxManaPoints = baseManaPoints;
 //        this.manaPoints = baseManaPoints;
 //        this.defense = baseDefense;
-        this.position=position;
-        this.textureName = textureName;
+
+        this.sprite = sprite;
         this.experiencePoints = 0;
         this.level = 1;
 
@@ -50,15 +47,32 @@ public abstract class AbstractPlayer implements Entity {
         }
 
         this.inventory = new ArrayList<>();
+        this.inventoryCursor = 0;
     }
 
     public void pickUp(Item item) {
-        // Infinite Inventory
-        inventory.add(item);
+        // Max Items - 10
+        if (inventory.size()<10) {
+            inventory.add(item);
+        }
     }
 
-    public boolean drop(Item item) {
-        if ((inventory.contains(item)) && (!slotsAndEquippables.containsValue(item))) {
+    public boolean dropItem() {
+
+        try {
+            inventory.remove(inventoryCursor);
+            if (inventoryCursor >= inventory.size()) {
+                inventoryCursor = inventory.size() - 1;
+            }
+            return true;
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean drop(Item item) {
+        if (inventory.contains(item)) {
             inventory.remove(item);
             return true;
         }
@@ -101,9 +115,11 @@ public abstract class AbstractPlayer implements Entity {
                 }
                 break;
             case MP_REPLENISH:
-                manaPoints += amount;
-                if (manaPoints > maxManaPoints) {
-                    manaPoints = maxManaPoints;
+                if (maxManaPoints != 0) {
+                    manaPoints += amount;
+                    if (manaPoints > maxManaPoints) {
+                        manaPoints = maxManaPoints;
+                    }
                 }
                 break;
             default:
@@ -115,7 +131,6 @@ public abstract class AbstractPlayer implements Entity {
     public boolean equip(SlotType slot, Equippable equippable) {
         if ((slotsAndEquippables.containsKey(slot)) && (isSlotEmpty(slot)) && (equippable.getSlot() == slot)) {
             slotsAndEquippables.put(slot, equippable);
-            //inventory.remove(equippable);
             for (ItemEffect itemEffect : equippable.getItemEffects()) {
                 decodeEquippableEffect(itemEffect.getEffectType(), itemEffect.getAmount());
             }
@@ -124,29 +139,44 @@ public abstract class AbstractPlayer implements Entity {
         return false;
     }
 
-    public boolean remove(SlotType slot) {
+    public Equippable remove(SlotType slot) {
         if (!isSlotEmpty(slot)) {
             Equippable equippable = slotsAndEquippables.get(slot);
             for (ItemEffect itemEffect : equippable.getItemEffects()) {
                 decodeEquippableEffect(itemEffect.getEffectType(), -itemEffect.getAmount());
             }
             slotsAndEquippables.put(slot, null);
-            //inventory.add(equippable);
-            return true;
+            return equippable;
         }
-        return false;
+        return null;
     }
 
-    public void use(Usable usable) {
-        if ((usable.getUsesLeft() > 0) && (inventory.contains(usable))) {
-            for (ItemEffect itemEffect : usable.getItemEffects()) {
-                decodeUsableEffect(itemEffect.getEffectType(), itemEffect.getAmount());
+    public void moveInventoryCursor(int x) {
 
+        this.inventoryCursor += x;
+        if (inventoryCursor < 0) {
+            inventoryCursor = inventory.size();
+        }
+        if (inventoryCursor > inventory.size() - 1) {
+            inventoryCursor = 0;
+        }
+        System.out.println(inventoryCursor);
+    }
+
+    public void use() {
+        try {
+            Usable usable = (Usable) inventory.get(inventoryCursor);
+            if (usable.getUsesLeft() > 0) {
+                for (ItemEffect itemEffect : usable.getItemEffects()) {
+                    decodeUsableEffect(itemEffect.getEffectType(), itemEffect.getAmount());
+                }
+                usable.decreaseUses();
+                if (usable.getUsesLeft() == 0) {
+                    drop(usable);
+                }
             }
-            usable.decreaseUses();
-            if (usable.getUsesLeft() == 0) {
-                drop(usable);
-            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
         }
 
     }
@@ -220,6 +250,19 @@ public abstract class AbstractPlayer implements Entity {
         return xpLevelsProgression.get(baseLevelXP);
     }
 
+    public void rest() {
+        hitPoints+=5;
+        if (hitPoints>maxHitPoints){
+            hitPoints=maxHitPoints;
+        }
+        if (maxManaPoints!=0){
+            manaPoints+=5;
+            if (manaPoints>maxManaPoints){
+                manaPoints=maxManaPoints;
+            }
+        }
+    }
+
     public int getExperiencePoints() {
         return experiencePoints;
     }
@@ -268,6 +311,43 @@ public abstract class AbstractPlayer implements Entity {
                 .append(" Level:").append(level).toString();
     }
 
+    public String getFancyInventory() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < inventory.size(); i++) {
+            if (i == inventoryCursor) {
+                sb.append(" &#8594; ");
+            } else {
+                sb.append("   ");
+            }
+            sb.append(inventory.get(i)).append("<br>");
+        }
+        return sb.toString();
+    }
+
+    public String getFancySlots() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<SlotType,Equippable> entry : slotsAndEquippables.entrySet()) {
+            sb.append(entry.getKey()+" : " + entry.getValue() + "<br>");
+        }
+        return sb.toString();
+    }
+
+    public String getStatsHTML() {
+        return new StringBuilder("<html>").append("<u>Player stats:</u>").append("<br>")
+                .append("Hitpoints: ").append(hitPoints)
+                .append("/").append(maxHitPoints).append("<br>")
+                .append("Manapoints: ").append(manaPoints)
+                .append("/").append(maxManaPoints).append("<br>")
+                .append("Strength: ").append(strength).append("<br>")
+                .append("Intelligence: ").append(intelligence).append("<br>")
+                .append("Defense: ").append(defense).append("<br>")
+                .append("Experience: ").append(experiencePoints).append("<br>")
+                .append("Level: ").append(level).append("<br>")
+                .append("Slots: ").append("<br>").append(getFancySlots())
+                .append("Inventory: ").append("<br>").append(getFancyInventory())
+                .append("</html>").toString();
+    }
+
     public String getInventory() {
         return inventory.toString();
     }
@@ -280,7 +360,7 @@ public abstract class AbstractPlayer implements Entity {
         return position;
     }
 
-    public void movePlayer(String dir){
+    public void movePlayer(String dir) {
         position.shiftDir(dir);
     }
 
@@ -288,8 +368,8 @@ public abstract class AbstractPlayer implements Entity {
         this.position = position;
     }
 
-    public String getTextureName() {
-        return textureName;
+    public String getSprite() {
+        return sprite;
     }
 
     public int dealDamage() {
@@ -297,6 +377,6 @@ public abstract class AbstractPlayer implements Entity {
     }
 
     public void takeDamage(int dmg) {
-        hitPoints-=dmg;
+        hitPoints -= dmg;
     }
 }

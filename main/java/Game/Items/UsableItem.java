@@ -7,6 +7,8 @@ public class UsableItem implements Usable {
     private String description;
     private ArrayList<ItemEffect> itemEffects;
     private int usesLeft;
+    private int uses;
+    private String sprite;
 
     private UsableItem() {
         itemEffects = new ArrayList<>();
@@ -33,18 +35,23 @@ public class UsableItem implements Usable {
     }
 
     @Override
+    public int getUses() {
+        return uses;
+    }
+
+    @Override
+    public String getSprite() {
+        return sprite;
+    }
+
+    @Override
     public void decreaseUses() {
         usesLeft--;
     }
 
     @Override
     public String toString() {
-        return "UsableItem{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", itemEffects=" + itemEffects +
-                ", usesLeft=" + usesLeft +
-                '}';
+        return name + "- Uses Left: " + usesLeft + "/" +uses;
     }
 
     public static class UsableBuilder {
@@ -64,6 +71,11 @@ public class UsableItem implements Usable {
             return this;
         }
 
+        public UsableBuilder withSprite(String sprite) {
+            usableItem.sprite = sprite;
+            return this;
+        }
+
         public UsableBuilder withItemEffect(ItemEffect itemEffect) {
             if (itemEffect.getEffectType().isUseEffect()) {
                 usableItem.itemEffects.add(itemEffect);
@@ -73,6 +85,7 @@ public class UsableItem implements Usable {
 
         public UsableBuilder withUses(int uses) {
             usableItem.usesLeft = uses;
+            usableItem.uses = uses;
             return this;
         }
 

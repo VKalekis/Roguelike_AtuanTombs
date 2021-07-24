@@ -1,11 +1,9 @@
 package Game;
 
-
 import Game.Map.MapTile;
 import Game.Map.MapTileType;
 import Game.Map.Position;
 import Game.Map.RoomMap;
-
 import java.util.*;
 
 public class Astar {
@@ -95,7 +93,7 @@ public class Astar {
         System.out.println("Ended:Printing");
         for (MapTile tile : finalPath) {
 //            tile.deleteTexture();
-//            tile.addTextureName("ASTAR.png");
+//            tile.addsprite("ASTAR.png");
             System.out.println(tile.getPosition());
             nextMoves.add(tile.getPosition());
         }
