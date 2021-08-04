@@ -1,10 +1,6 @@
 package Game.Map;
 
-import Game.Astar;
-import Game.Enemies.Enemy;
-import Game.Enemies.GiantRat;
 import Game.GameState;
-import Game.PlayerSrc.Wizard;
 import Game.UI.LabelTranscriptReader;
 import Game.UI.LabelTranscriptWriter;
 import Game.UI.TextAreaTranscriptReader;
@@ -15,7 +11,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.*;
 
 public class UIRoomTest {
     public static void main(String[] args) throws Exception {
@@ -142,7 +137,6 @@ class MapComponent1 extends JComponent implements LabelTranscriptWriter, TextAre
         setTextAreaTranscriptReader(textAreaTranscriptReader);
 
         gameState = new GameState(labelTranscriptReader,textAreaTranscriptReader);
-        //gameState.initialize();
 
         this.setFocusable(true);
         this.addKeyListener(new KeyListener() {
@@ -187,20 +181,20 @@ class MapComponent1 extends JComponent implements LabelTranscriptWriter, TextAre
                         break;
                     case 'u':
                     case 'U':
-                        gameState.getPlayer().use();
+                        gameState.use();
                         sendTextAreaTranscript("Pressed U\n");
                         break;
                     case 'p':
                     case 'P':
-                        gameState.getPlayer().dropItem();
+                        gameState.dropItem();
                         sendTextAreaTranscript("Pressed P\n");
                         break;
                     case '[':
-                        gameState.getPlayer().moveInventoryCursor(-1);
+                        gameState.moveInventoryCursor(-1);
                         sendTextAreaTranscript("Pressed [\n");
                         break;
                     case ']':
-                        gameState.getPlayer().moveInventoryCursor(+1);
+                        gameState.moveInventoryCursor(+1);
                         sendTextAreaTranscript("Pressed ]\n");
                         break;
                     case 'h':
@@ -210,7 +204,7 @@ class MapComponent1 extends JComponent implements LabelTranscriptWriter, TextAre
                         break;
                     case 'r':
                     case 'R':
-                        gameState.getPlayer().rest();
+                        gameState.rest();
                         sendTextAreaTranscript("Rested");
                         break;
                     default:
@@ -218,13 +212,11 @@ class MapComponent1 extends JComponent implements LabelTranscriptWriter, TextAre
                 }
                 if (e.getKeyChar()!='[' && e.getKeyChar()!=']') {
                     gameState.moveEnemies();
-                    gameState.spawnEnemies(0.01);
+                    gameState.spawnEnemies(0.1);
 
                 }
-                sendLabelTranscript(gameState.getPlayer().getStatsHTML());
+                sendLabelTranscript(gameState.getPlayerStatsHTML());
                 repaint();
-
-
             }
 
             @Override
@@ -245,7 +237,6 @@ class MapComponent1 extends JComponent implements LabelTranscriptWriter, TextAre
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        //map.drawMap(g);
         gameState.drawMap(g);
     }
 

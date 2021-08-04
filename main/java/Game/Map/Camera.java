@@ -19,27 +19,27 @@ public class Camera {
         return screenSize;
     }
 
-    public void setNewPosition(AbstractPlayer player) {
-        this.position.moveTo(internalSetNewPosition(player.getPosition().getI()),
-                internalSetNewPosition(player.getPosition().getJ()));
+    public void setNewPosition(Position position) {
+        this.position.moveTo(internalSetNewPosition(position.getI()),
+                internalSetNewPosition(position.getJ()));
     }
 
     //http://www.roguebasin.com/index.php/Scrolling_map
     private int internalSetNewPosition(int playerIorJ) {
 
 
-        //For 31x31 camera centered around player:
+        //For 41x41 camera centered around player:
         //
         //At the left border, the marginal state is:
-        // 0 - 15 - 30
+        // 0 - 20 - 40
         //LeftCameraBorder - Player - RightCameraBorder
-        //The camera will be fixed at 0 if player.position <= 15 = (screenSize+1)/2
-        if (playerIorJ < (screenSize + 1) / 2) {
+        //The camera will be fixed at 0 if player.position < 21 = (screenSize+1)/2
+        if (playerIorJ < (screenSize+1) / 2) {
             return 0;
         }
         //At the right border, the marginal state is:
-        //31 - 46 - 61
-        //The camera will be fixed at 31 if player.position >= 46 = 62 - 32/2 = mapSize - (screenSize+1)/2
+        //21 - 41 - 61
+        //The camera will be fixed at 21 if player.position >= 41 = 62 - 42/2 = mapSize - (screenSize+1)/2
         else if (playerIorJ >= mapSize - (screenSize + 1) / 2) {
             return mapSize - screenSize;
         }

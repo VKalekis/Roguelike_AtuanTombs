@@ -19,9 +19,6 @@ public class ItemEffect {
 
     @Override
     public String toString() {
-        return "ItemEffect{" +
-                "effectType=" + effectType +
-                ", amount=" + amount +
-                '}';
+        return effectType + " " + amount;
     }
 }

@@ -1,22 +1,27 @@
 package Game.Enemies;
 
 import Game.Astar;
+import Game.Drawable;
 import Game.Entity;
-import Game.Map.MapTile;
-import Game.Map.MapTileType;
 import Game.Map.Position;
 import Game.Map.RoomMap;
 
 import java.util.*;
 
-public class Enemy implements Entity {
+//GiantRat -> Goblin
+//MadGuard -> Ice Zombie
+//Skeleton -> Swampy
+//SkeletonLord -> OrcShaman
+//Shade -> Necromancer
+
+abstract public class Enemy implements Entity, Drawable {
 
     private final String name;
     private int hitpoints;
     private final Weapon weapon;
     private final int experience;
     private final String announcementText;
-    private Position position;
+    protected Position position;
     private final String sprite;
     private final Astar astar;
     private List<Position> nextMoves;
@@ -89,8 +94,19 @@ public class Enemy implements Entity {
     }
 
     @Override
+    public List<String> getSprites() {
+        return Arrays.asList(sprite);
+    }
+
+    @Override
+    public Position getDrawablePosition() {
+        return position;
+    }
+
+    @Override
     public String toString() {
         return "Enemy : " + name + " { hitpoints : " + hitpoints + ", weapon : " + weapon + " }";
 
     }
+
 }

@@ -1,13 +1,17 @@
 package Game.Items;
 
+import Game.Map.Position;
 import Game.PlayerSrc.SlotType;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EquippableItem implements Equippable {
     private String name;
-    private String description;
+    //private String description;
+    private Position position;
     private ArrayList<ItemEffect> itemEffects;
     private SlotType slot;
     private String sprite;
@@ -21,10 +25,10 @@ public class EquippableItem implements Equippable {
         return name;
     }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+//    @Override
+//    public String getDescription() {
+//        return description;
+//    }
 
     @Override
     public ArrayList<ItemEffect> getItemEffects() {
@@ -36,13 +40,35 @@ public class EquippableItem implements Equippable {
     }
 
     @Override
-    public String getSprite() {
-        return sprite;
+    public List<String> getSprites() {
+        return Arrays.asList(sprite);
+    }
+
+    @Override
+    public Position getDrawablePosition() {
+        return position;
+    }
+
+    @Override
+    public Position getPosition() {
+        return position;
     }
 
     @Override
     public String toString() {
-        return name + "- Uses Left: " + slot;}
+        StringBuilder sb = new StringBuilder();
+        for (ItemEffect itemEffect : itemEffects) {
+            sb.append("    ").append(itemEffect).append("\n");
+
+        }
+        return new StringBuilder().append(name).append(" - Item effects:\n")
+                .append(sb).toString();
+    }
+
+    public String toStringHTML() {
+
+        return new StringBuilder().append(name).toString();
+    }
 
     public static class EquippableBuilder {
         private EquippableItem equippableItem;
@@ -56,13 +82,18 @@ public class EquippableItem implements Equippable {
             return this;
         }
 
-        public EquippableBuilder withDescription(String description) {
-            equippableItem.description = description;
-            return this;
-        }
+//        public EquippableBuilder withDescription(String description) {
+//            equippableItem.description = description;
+//            return this;
+//        }
 
         public EquippableBuilder withSprite(String sprite) {
             equippableItem.sprite = sprite;
+            return this;
+        }
+
+        public EquippableBuilder atPosition(Position position) {
+            equippableItem.position = position;
             return this;
         }
 

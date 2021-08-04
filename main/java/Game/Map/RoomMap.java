@@ -21,10 +21,9 @@ public class RoomMap {
     private MapTile[][] mapTiles;
     private final int WIDTH;
     private final int HEIGHT;
-    private final Camera camera;
     private final ArrayList<MapTile> walls;
     private final ArrayList<MapTile> floors;
-    private final Map<String, Image> imagesMap;
+
     private MapTile entrance;
     private final ArrayList<MapTile> exits;
 
@@ -32,60 +31,10 @@ public class RoomMap {
         this.WIDTH = 60;
         this.HEIGHT = 60;
         this.mapTiles = new MapTile[WIDTH + 2][HEIGHT + 2];
-        this.camera = new Camera(41, 62);
         this.walls = new ArrayList<>();
         this.floors = new ArrayList<>();
 
-        this.imagesMap = new HashMap<>();
         this.exits = new ArrayList<>();
-        initializeImagesMap();
-
-    }
-
-    private void initializeImagesMap() {
-
-        try {
-            List<String> filenames = getImageFiles("");
-
-//            List<String> filenames = new LinkedList<>();
-//            filenames = Arrays.asList("astar.png", "enemy.png", "floor_0.png", "floor_1.png",
-//                    "floor_2.png", "floor_3.png", "floor_4.png", "floor_5.png", "floor_6.png", "floor_7.png", "floor_hole.png", "floor_ladder.png", "knight.png", "wall_banner_blue.png", "wall_banner_green.png", "wall_banner_red.png", "wall_banner_yellow.png", "wall_corner_left.png", "wall_corner_right.png", "wall_fountain_basin_blue.png", "wall_fountain_basin_red.png", "wall_fountain_mid_blue.png", "wall_fountain_mid_red.png", "wall_fountain_top.png", "wall_left.png", "wall_mid.png", "wall_right.png", "wall_side_mid_left.png", "wall_side_mid_right.png", "wall_top_mid.png", "wizard.png");
-
-            System.out.println(filenames);
-            ClassLoader classLoader = getClass().getClassLoader();
-
-            for (String filename : filenames) {
-                this.imagesMap.put(filename, ImageIO.read(classLoader.getResource(filename)));
-            }
-            System.out.println(imagesMap);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //https://stackoverflow.com/questions/3923129/get-a-list-of-resources-from-classpath-directory
-    public List<String> getImageFiles(String path) throws IOException {
-        List<String> filenames = new ArrayList<>();
-        ClassLoader classLoader = getClass().getClassLoader();
-        try {
-            InputStream in = classLoader.getResourceAsStream(path);
-            if (in != null) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                String resource;
-
-                while ((resource = br.readLine()) != null) {
-                    filenames.add(resource);
-
-                }
-            }
-            return filenames;
-        } catch (IOException exception) {
-            System.out.println(exception.getStackTrace());
-
-        }
-        return null;
     }
 
     public void collectLists() {
@@ -101,6 +50,7 @@ public class RoomMap {
                         walls.add(mapTiles[i][j]);
                         break;
                 }
+
             }
         }
     }
@@ -152,7 +102,6 @@ public class RoomMap {
             }
         }
         System.out.println("Ended");
-        //collectLists();
     }
 
     public void floodFill() {
@@ -272,131 +221,6 @@ public class RoomMap {
             cardinalMapTileArrayList.addAll(getSurroundingCardinal(current_i, current_j, mapTileType));
         }
         return cardinalMapTileArrayList;
-    }
-
-//    public void RandomWalk() {
-//
-//        double perc = 0.4;
-//        double fill_rate = 0.0;
-//        int fill_count = 0;
-//
-//        String[] dirs = {"N", "E", "S", "W"};
-//        String randomdir;
-//        Position randomPosition, currentPosition;
-//
-//        Random random = new Random();
-//        int random_i = random.nextInt(WIDTH) + 1;
-//        int random_j = random.nextInt(HEIGHT) + 1;
-//        currentPosition = new Position(random_i, random_j);
-//
-//        mapTiles[currentPosition.getI()][currentPosition.getJ()].setMapTileType(MapTileType.FLOOR);
-//
-//        while (fill_rate < perc) {
-//            randomdir = dirs[random.nextInt(4)];
-//            randomPosition = currentPosition.shiftPosition(randomdir);
-//            if (!randomPosition.validPosition()) {
-//                System.out.println("Invalid " + randomPosition);
-//                System.out.println(fill_rate);
-//                System.out.println(fill_rate < perc);
-//                continue;
-//            }
-//
-//            currentPosition = randomPosition;
-//            //System.out.println(randomPosition);
-//
-//            if (mapTiles[currentPosition.getI()][currentPosition.getJ()].getMapTileType() != MapTileType.FLOOR) {
-//                mapTiles[currentPosition.getI()][currentPosition.getJ()].setMapTileType(MapTileType.FLOOR);
-//                fill_count += 1;
-//                System.out.println(fill_count);
-//                fill_rate = (double) fill_count / (WIDTH * HEIGHT);
-//            }
-////            try
-////            {
-////                Thread.sleep(1000);
-////            }
-////            catch(InterruptedIOException ex)
-////            {
-////                Thread.currentThread().interrupt();
-////            }
-//
-//        }
-//
-//
-//    }
-
-    public void drawMap(Graphics g) {
-        for (int i = 0; i < WIDTH + 2; i++) {
-            for (int j = 0; j < HEIGHT + 2; j++) {
-                mapTiles[i][j].drawMapTile(g);
-            }
-        }
-    }
-
-    public void drawFocusedMap(Graphics g, AbstractPlayer player, List<Enemy> enemies, Map<Position, UsableItem> potionMap, Map<Position, EquippableItem> itemMap) {
-        Graphics2D g2d = (Graphics2D) g;
-
-        System.out.println("Player position:" + player.getPosition());
-
-        camera.setNewPosition(player);
-
-        System.out.println("Camera " + camera.getPosition());
-        int camera_i = camera.getPosition().getI();
-        int camera_j = camera.getPosition().getJ();
-
-        int unknownBrightness = (int) (256 - 256 * 0.1);
-        int foggedBrightness = (int) (256 - 256 * 0.5);
-
-
-        // Find visible tiles.
-        for (int i = camera_i; i < camera_i + camera.getScreenSize(); i++) {
-            for (int j = camera_j; j < camera_j + camera.getScreenSize(); j++) {
-                if (tileVisible(i, j, player.getPosition().getI(), player.getPosition().getJ())) {
-                    mapTiles[i][j].setMapTileState(MapTileState.VISIBLE);
-                }
-            }
-        }
-
-        // Background - flat gray.
-        g.setColor(new Color(28, 28, 28));
-        g.fillRect(0, 0, 16 * camera.getScreenSize(), 16 * camera.getScreenSize());
-
-        // Draw Floors
-        drawFloors(g, camera_i, camera_j);
-        // Draw Walls
-        drawWalls(g, camera_i, camera_j);
-        // Draw Player
-        drawPlayer(g, player, camera_i, camera_j);
-        // Draw Enemy
-        drawEnemies(g, enemies, camera_i, camera_j);
-        // Draw Potions
-        drawPotions(g, potionMap, camera_i, camera_j);
-        // Draw items
-        drawItems(g,itemMap,camera_i,camera_j);
-
-        // Draw visibility overlay over each tile.
-        for (int i = camera_i; i < camera_i + camera.getScreenSize(); i++) {
-            for (int j = camera_j; j < camera_j + camera.getScreenSize(); j++) {
-
-                switch (mapTiles[i][j].getMapTileState()) {
-                    // Overlay unknown tiles with 20% transparent black.
-                    case UNKNOWN:
-                        g.setColor(new Color(0, 0, 0, unknownBrightness));
-                        g.fillRect((i - camera_i) * 16, (j - camera_j) * 16, 16, 16);
-                        break;
-                    // Overlay fogged tiles with 40% transparent black.
-                    case FOGGED:
-                        g.setColor(new Color(0, 0, 0, foggedBrightness));
-                        g.fillRect((i - camera_i) * 16, (j - camera_j) * 16, 16, 16);
-                        break;
-                    // Set current visible tiles to fogged in order to be ready for the next player move.
-                    case VISIBLE:
-                        mapTiles[i][j].setMapTileState(MapTileState.FOGGED);
-                        break;
-                }
-            }
-        }
-
-
     }
 
     public void setWallsTextures() {
@@ -529,89 +353,8 @@ public class RoomMap {
 
     }
 
-    public void drawWalls(Graphics g, int camera_i, int camera_j) {
-        Graphics2D g2d = (Graphics2D) g;
-
-        for (MapTile wall : walls) {
-            int wall_i = wall.getPosition().getI();
-            int wall_j = wall.getPosition().getJ();
-            if ((wall_i >= camera_i) && (wall_i < camera_i + camera.getScreenSize()) &&
-                    (wall_j >= camera_j) && (wall_j < camera_j + camera.getScreenSize())) {
-                for (String texture : wall.getSprites()) {
-                    g2d.drawImage(imagesMap.get(texture), (wall_i - camera_i) * 16, (wall_j - camera_j) * 16, null);
-                }
-            }
-        }
-
-    }
-
-    public void drawFloors(Graphics g, int camera_i, int camera_j) {
-        Graphics2D g2d = (Graphics2D) g;
-
-        for (MapTile floor : floors) {
-            if ((floor.getPosition().getI() >= camera_i) && (floor.getPosition().getI() < camera_i + camera.getScreenSize()) &&
-                    (floor.getPosition().getJ() >= camera_j) && (floor.getPosition().getJ() < camera_j + camera.getScreenSize())) {
-                int floor_i = floor.getPosition().getI();
-                int floor_j = floor.getPosition().getJ();
-
-                for (String texture : floor.getSprites()) {
-                    if (texture.equals("floor_hole.png")) {
-                        System.out.println("FOUNDIT" + floor.getPosition());
-                    }
-                    g2d.drawImage(imagesMap.get(texture), (floor_i - camera_i) * 16, (floor_j - camera_j) * 16, null);
-
-                }
-            }
-        }
-
-    }
-
-    public void drawPlayer(Graphics g, AbstractPlayer player, int camera_i, int camera_j) {
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(imagesMap.get(player.getSprite()), (player.getPosition().getI() - camera_i) * 16, (player.getPosition().getJ() - 1 - camera_j) * 16, null);
-        //getJ - 1 : the mage texture is > 16x16. We draw it at the tile above.
-    }
-
-    public void drawEnemies(Graphics g, List<Enemy> enemies, int camera_i, int camera_j) {
-        Graphics2D g2d = (Graphics2D) g;
-
-        for (Enemy enemy : enemies) {
-            if ((enemy.getPosition().getI() >= camera_i) && (enemy.getPosition().getI() < camera_i + camera.getScreenSize()) &&
-                    (enemy.getPosition().getJ() >= camera_j) && (enemy.getPosition().getJ() < camera_j + camera.getScreenSize())) {
-
-                g2d.drawImage(imagesMap.get(enemy.getSprite()), (enemy.getPosition().getI() - camera_i) * 16, (enemy.getPosition().getJ() - camera_j) * 16, null);
-            }
-        }
-    }
-
-    public void drawPotions(Graphics g, Map<Position, UsableItem> potionMap, int camera_i, int camera_j) {
-        Graphics2D g2d = (Graphics2D) g;
-        for (Map.Entry<Position,UsableItem> entry : potionMap.entrySet()) {
-            Position position = entry.getKey();
-            System.out.println(position);
-            if ((position.getI() >= camera_i) && (position.getI() < camera_i + camera.getScreenSize()) &&
-                    (position.getJ() >= camera_j) && (position.getJ() < camera_j + camera.getScreenSize())) {
-                System.out.println("Drawn");
-                g2d.drawImage(imagesMap.get(entry.getValue().getSprite()), (position.getI() - camera_i) * 16, (position.getJ() - camera_j) * 16, null);
-            }
-        }
-    }
-
-    public void drawItems(Graphics g, Map<Position, EquippableItem> itemMap, int camera_i, int camera_j) {
-        Graphics2D g2d = (Graphics2D) g;
-        for (Map.Entry<Position,EquippableItem> entry : itemMap.entrySet()) {
-            Position position = entry.getKey();
-            System.out.println(position);
-            if ((position.getI() >= camera_i) && (position.getI() < camera_i + camera.getScreenSize()) &&
-                    (position.getJ() >= camera_j) && (position.getJ() < camera_j + camera.getScreenSize())) {
-                System.out.println("Drawn");
-                g2d.drawImage(imagesMap.get(entry.getValue().getSprite()), (position.getI() - camera_i) * 16, (position.getJ() - camera_j) * 16, null);
-            }
-        }
-    }
-
-    public boolean tileVisible(int x1, int y1, int x2, int y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) < 15;
+    public boolean tileVisible(int i1, int j1, int i2, int j2, int playerVisibility) {
+        return Math.sqrt(Math.pow(i2 - i1, 2) + Math.pow(j2 - j1, 2)) < playerVisibility;
     }
 
     public Position addEntrance() {
@@ -662,21 +405,58 @@ public class RoomMap {
         return mapTiles[position.getI()][position.getJ()];
     }
 
-    public MapTile getMapTile(int i, int j) {
-        return mapTiles[i][j];
-    }
-
-    public MapTile getRandom(MapTileType mapTileType) {
+    public Position getRandomPosition(MapTileType mapTileType) {
         Random random = new Random();
         if (mapTileType == MapTileType.FLOOR) {
-            return floors.get(random.nextInt(floors.size()));
+            return floors.get(random.nextInt(floors.size())).getPosition();
         } else if (mapTileType == MapTileType.WALL) {
-            return walls.get(random.nextInt(walls.size()));
+            return walls.get(random.nextInt(walls.size())).getPosition();
         }
         return null;
     }
 
+    public void findVisibleTiles(Position position, int playerVisibility) {
 
+        for (int i = 0; i < 62; i++) {
+            for (int j = 0; j < 62; j++) {
+                if (tileVisible(i, j, position.getI(), position.getJ(), playerVisibility)) {
+                    mapTiles[i][j].setMapTileState(MapTileState.VISIBLE);
+                }
+            }
+        }
+    }
+
+    public void setFoggedTiles() {
+        for (int i = 0; i < 62; i++) {
+            for (int j = 0; j < 62; j++) {
+                if (mapTiles[i][j].getMapTileState() == MapTileState.VISIBLE) {
+                    mapTiles[i][j].setMapTileState(MapTileState.FOGGED);
+                }
+            }
+        }
+    }
+
+    public List<MapTile> getVisibleFloors() {
+
+        List<MapTile> visibleFloorList = new ArrayList<>();
+        for (MapTile floor : floors) {
+            //System.out.println(floor.getMapTileState());
+            if (floor.getMapTileState() == MapTileState.VISIBLE) {
+                System.out.println("eee");
+                visibleFloorList.add(floor);
+            }
+        }
+        System.out.println("uuu" + visibleFloorList);
+        return visibleFloorList;
+    }
+
+    public ArrayList<MapTile> getWalls() {
+        return walls;
+    }
+
+    public ArrayList<MapTile> getFloors() {
+        return floors;
+    }
 }
 
 

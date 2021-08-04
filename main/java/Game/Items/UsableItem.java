@@ -1,10 +1,15 @@
 package Game.Items;
 
+import Game.Map.Position;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class UsableItem implements Usable {
     private String name;
-    private String description;
+    //private String description;
+    private Position position;
     private ArrayList<ItemEffect> itemEffects;
     private int usesLeft;
     private int uses;
@@ -19,10 +24,10 @@ public class UsableItem implements Usable {
         return name;
     }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+//    @Override
+//    public String getDescription() {
+//        return description;
+//    }
 
     @Override
     public ArrayList<ItemEffect> getItemEffects() {
@@ -40,11 +45,6 @@ public class UsableItem implements Usable {
     }
 
     @Override
-    public String getSprite() {
-        return sprite;
-    }
-
-    @Override
     public void decreaseUses() {
         usesLeft--;
     }
@@ -52,6 +52,21 @@ public class UsableItem implements Usable {
     @Override
     public String toString() {
         return name + "- Uses Left: " + usesLeft + "/" +uses;
+    }
+
+    @Override
+    public List<String> getSprites() {
+        return Arrays.asList(sprite);
+    }
+
+    @Override
+    public Position getDrawablePosition() {
+        return position;
+    }
+
+    @Override
+    public Position getPosition() {
+        return position;
     }
 
     public static class UsableBuilder {
@@ -66,13 +81,18 @@ public class UsableItem implements Usable {
             return this;
         }
 
-        public UsableBuilder withDescription(String description) {
-            usableItem.description = description;
-            return this;
-        }
+//        public UsableBuilder withDescription(String description) {
+//            usableItem.description = description;
+//            return this;
+//        }
 
         public UsableBuilder withSprite(String sprite) {
             usableItem.sprite = sprite;
+            return this;
+        }
+
+        public UsableBuilder atPosition(Position position) {
+            usableItem.position = position;
             return this;
         }
 

@@ -12,13 +12,13 @@ public class Position {
     }
 
     public Position() {
-        this.i=0;
-        this.j=0;
+        this.i = 0;
+        this.j = 0;
     }
 
     public Position(Position position) {
-        this.i=position.i;
-        this.j=position.j;
+        this.i = position.i;
+        this.j = position.j;
     }
 
     public int getI() {
@@ -50,14 +50,14 @@ public class Position {
     }
 
     public void moveTo(int i, int j) {
-        this.i=i;
-        this.j=j;
+        this.i = i;
+        this.j = j;
     }
 
     public void randomize() {
         Random random = new Random();
-        this.i=random.nextInt(60)+1;
-        this.j=random.nextInt(60)+1;
+        this.i = random.nextInt(60) + 1;
+        this.j = random.nextInt(60) + 1;
     }
 
     public boolean validPosition() {
@@ -65,15 +65,13 @@ public class Position {
     }
 
     public double getDistance(Position position1) {
-        return Math.sqrt(Math.pow(this.i-position1.getI(),2)+Math.pow(this.j- position1.getJ(),2));
+        return Math.sqrt(Math.pow(this.i - position1.getI(), 2) + Math.pow(this.j - position1.getJ(), 2));
     }
 
     @Override
     public String toString() {
         return "(" + i + " " + j + ")";
     }
-
-
 
     @Override
     public boolean equals(Object o) {

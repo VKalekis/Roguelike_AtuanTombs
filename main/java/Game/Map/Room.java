@@ -1,6 +1,9 @@
 package Game.Map;
 
 
+import Game.Items.*;
+import Game.PlayerSrc.AbstractPlayer;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -9,10 +12,14 @@ public class Room {
     private final String name;
     private final String description;
     private final RoomMap roomMap;
+    private boolean finalRoom;
     private Map<Position, Room> connectedRoomsMap;
     private Position entrance;
 
-    private boolean finalRoom;
+    private UsableFactory usableFactory;
+    private Map<Position, UsableItem> usablesMap;
+    private EquippableFactory equippableFactory;
+    private Map<Position, EquippableItem> equippablesMap;
 
     public Room(String name, String description, RoomMap roomMap) {
         this.name = name;
@@ -20,6 +27,12 @@ public class Room {
         this.roomMap = roomMap;
         this.connectedRoomsMap = new HashMap<>();
         this.finalRoom = false;
+
+        this.usableFactory = new UsableFactory();
+        this.usablesMap = new HashMap<>();
+        this.equippableFactory = new EquippableFactory();
+        this.equippablesMap = new HashMap<>();
+
     }
 
     public Room(String name, String description, RoomMap roomMap, boolean finalRoom) {
@@ -45,7 +58,6 @@ public class Room {
     public void setTextures() {
         roomMap.setFloorsTextures();
         roomMap.setWallsTextures();
-
     }
 
     public Room goTo(Position position) {
@@ -62,7 +74,7 @@ public class Room {
         return description;
     }
 
-    public RoomMap getMap() {
+    public RoomMap getRoomMap() {
         return roomMap;
     }
 
@@ -70,7 +82,7 @@ public class Room {
         return entrance;
     }
 
-    public List<Room> getConnectedRooms11() {
+    public List<Room> getConnectedRooms() {
         return connectedRoomsMap.values().stream().collect(Collectors.toList());
     }
 
@@ -79,11 +91,37 @@ public class Room {
         return "Room: " + name + ", description : " + description;
     }
 
-    public Room getFromMap(Position position) {
+    public Room getConnectedRoom(Position position) {
         return connectedRoomsMap.get(position);
     }
 
     public boolean isExit(Position position) {
         return connectedRoomsMap.containsKey(position);
+    }
+
+    public void generateUsables(AbstractPlayer player) {
+        usablesMap.clear();
+
+        for (int i=0;i<5;i++) {
+            Position randomPosition = roomMap.getRandomPosition(MapTileType.FLOOR);
+            usablesMap.put(randomPosition, usableFactory.makeUsable(player.getClass(), randomPosition));
+        }
+    }
+
+    public Map<Position, UsableItem> getUsablesMap() {
+        return usablesMap;
+    }
+
+    public void generateEquippables(AbstractPlayer player) {
+        equippablesMap.clear();
+
+        for (int i=0;i<4;i++) {
+            Position randomPosition = roomMap.getRandomPosition(MapTileType.FLOOR);
+            equippablesMap.put(randomPosition, equippableFactory.makeEquippable(player,randomPosition));
+        }
+    }
+
+    public Map<Position, EquippableItem> getEquippablesMap() {
+        return equippablesMap;
     }
 }

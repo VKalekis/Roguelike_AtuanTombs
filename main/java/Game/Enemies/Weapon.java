@@ -3,12 +3,10 @@ package Game.Enemies;
 public class Weapon {
 
     private final String name;
-    private final String description;
     private final Dice damageDice;
 
-    public Weapon(String name, String description, Dice damageDice) {
+    public Weapon(String name, Dice damageDice) {
         this.name = name;
-        this.description = description;
         this.damageDice = damageDice;
     }
 
@@ -18,6 +16,6 @@ public class Weapon {
 
     @Override
     public String toString() {
-        return "{ description= " + description + ", damageDice= " + damageDice;
+        return "{ name= " + name + ", damageDice= " + damageDice;
     }
 }

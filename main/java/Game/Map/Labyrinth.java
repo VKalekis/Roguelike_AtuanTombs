@@ -143,7 +143,9 @@ public class Labyrinth {
         theUndergroundGarden.setTextures();
 
         theHallOfThrone.addEntrance();
+        theHallOfThrone.addConnectedRoom(thePit);
         theHallOfThrone.setTextures();
+
 
         return thePit;
     }

@@ -4,4 +4,5 @@ import Game.PlayerSrc.SlotType;
 
 public interface Equippable extends Item{
         SlotType getSlot();
+        String toStringHTML();
 }

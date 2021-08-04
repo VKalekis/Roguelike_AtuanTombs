@@ -1,12 +1,13 @@
 package Game.PlayerSrc;
 
+import Game.Drawable;
 import Game.Entity;
 import Game.Items.*;
 import Game.Map.Position;
 
 import java.util.*;
 
-public abstract class AbstractPlayer implements Entity {
+public abstract class AbstractPlayer implements Entity, Drawable {
     protected Position position;
     protected String sprite;
     protected int maxHitPoints, hitPoints;
@@ -15,27 +16,20 @@ public abstract class AbstractPlayer implements Entity {
     protected int intelligence;
     protected int experiencePoints, level;
     protected int defense;
+    protected int visibility;
 
     protected Map<Integer, Integer> xpLevelsProgression;
-    protected Map<Integer, int[]> playerStatsProgression;
+    protected Map<Integer, int[]> statsProgression;
 
     protected Map<SlotType, Equippable> slotsAndEquippables;
     protected List<Item> inventory;
     protected int inventoryCursor;
 
-    protected abstract void setXPprogression();
-
+    protected abstract void setXPProgression();
     protected abstract void setStatsProgression();
+    public abstract int dealDamage();
 
-    public AbstractPlayer(String sprite, List<SlotType> availableSlots) {
-
-//        this.strength = baseStrength;
-//        this.intelligence = baseIntelligence;
-//        this.maxHitPoints = baseHitPoints;
-//        this.hitPoints = baseHitPoints;
-//        this.maxManaPoints = baseManaPoints;
-//        this.manaPoints = baseManaPoints;
-//        this.defense = baseDefense;
+    public AbstractPlayer(String sprite, List<SlotType> availableSlots, int visibility) {
 
         this.sprite = sprite;
         this.experiencePoints = 0;
@@ -48,17 +42,18 @@ public abstract class AbstractPlayer implements Entity {
 
         this.inventory = new ArrayList<>();
         this.inventoryCursor = 0;
+
+        this.visibility = visibility;
     }
 
     public void pickUp(Item item) {
         // Max Items - 10
-        if (inventory.size()<10) {
+        if (inventory.size() < 10) {
             inventory.add(item);
         }
     }
 
     public boolean dropItem() {
-
         try {
             inventory.remove(inventoryCursor);
             if (inventoryCursor >= inventory.size()) {
@@ -90,6 +85,9 @@ public abstract class AbstractPlayer implements Entity {
                 break;
             case HP_BONUS:
                 maxHitPoints += amount;
+                break;
+            case MP_BONUS:
+                maxManaPoints += amount;
                 break;
             case INT_BONUS:
                 intelligence += amount;
@@ -128,6 +126,7 @@ public abstract class AbstractPlayer implements Entity {
         }
     }
 
+
     public boolean equip(SlotType slot, Equippable equippable) {
         if ((slotsAndEquippables.containsKey(slot)) && (isSlotEmpty(slot)) && (equippable.getSlot() == slot)) {
             slotsAndEquippables.put(slot, equippable);
@@ -151,9 +150,9 @@ public abstract class AbstractPlayer implements Entity {
         return null;
     }
 
-    public void moveInventoryCursor(int x) {
+    public void moveInventoryCursor(int offset) {
 
-        this.inventoryCursor += x;
+        this.inventoryCursor += offset;
         if (inventoryCursor < 0) {
             inventoryCursor = inventory.size();
         }
@@ -191,24 +190,18 @@ public abstract class AbstractPlayer implements Entity {
         level = calculateLevel();
 
         if (oldlevel != level) {
+            int[] stats = statsProgression.get(level);
 
-            int[] accumulate = {0, 0, 0, 0};
+            //HP - MP - Str - Int
+            maxHitPoints = stats[0];
+            hitPoints = stats[0];
 
-            for (int i = oldlevel + 1; i <= level; i++) {
-                int[] tempprogression = playerStatsProgression.get(i);
-                Arrays.setAll(accumulate, index -> accumulate[index] + tempprogression[index]);
+            maxManaPoints = stats[1];
+            manaPoints = stats[1];
 
-            }
+            strength = stats[2];
 
-            //Base HP - Base MP - Base Str - Base Int
-            strength += accumulate[2];
-            intelligence += accumulate[3];
-            maxHitPoints += accumulate[0];
-            hitPoints = maxHitPoints;
-            maxManaPoints += accumulate[1];
-            manaPoints = maxManaPoints;
-            //defense += accumulate[4];
-
+            intelligence = stats[3];
         }
     }
 
@@ -219,29 +212,22 @@ public abstract class AbstractPlayer implements Entity {
         level = calculateLevel();
 
         if (oldlevel != level) {
-            int[] accumulate = {0, 0, 0, 0};
+            int[] stats = statsProgression.get(level);
 
-            for (int i = oldlevel; i > level; i--) {
-                int[] tempprogression = playerStatsProgression.get(i);
-                Arrays.setAll(accumulate, index -> accumulate[index] + tempprogression[index]);
-
-            }
-            //Base HP - Base MP - Base Str - Base Int
-            strength -= accumulate[2];
-            intelligence -= accumulate[3];
-            maxHitPoints -= accumulate[0];
+            //HP - MP - Str - Int
+            maxHitPoints = stats[0];
             if (hitPoints > maxHitPoints) {
                 hitPoints = maxHitPoints;
             }
-            maxManaPoints -= accumulate[1];
+
+            maxManaPoints = stats[1];
             if (manaPoints > maxManaPoints) {
                 manaPoints = maxManaPoints;
             }
-            //defense -= accumulate[4];
 
-        }
-        if (experiencePoints < 0) {
-            experiencePoints = 0;
+            strength = stats[2];
+
+            intelligence = stats[3];
         }
     }
 
@@ -251,14 +237,14 @@ public abstract class AbstractPlayer implements Entity {
     }
 
     public void rest() {
-        hitPoints+=5;
-        if (hitPoints>maxHitPoints){
-            hitPoints=maxHitPoints;
+        hitPoints += 5;
+        if (hitPoints > maxHitPoints) {
+            hitPoints = maxHitPoints;
         }
-        if (maxManaPoints!=0){
-            manaPoints+=5;
-            if (manaPoints>maxManaPoints){
-                manaPoints=maxManaPoints;
+        if (maxManaPoints != 0) {
+            manaPoints += 5;
+            if (manaPoints > maxManaPoints) {
+                manaPoints = maxManaPoints;
             }
         }
     }
@@ -299,6 +285,10 @@ public abstract class AbstractPlayer implements Entity {
         return defense;
     }
 
+    public int getVisibility() {
+        return visibility;
+    }
+
     public String getStats() {
         return new StringBuilder().append("Hitpoints:").append(hitPoints)
                 .append(" MaxHitPoints:").append(maxHitPoints)
@@ -311,7 +301,7 @@ public abstract class AbstractPlayer implements Entity {
                 .append(" Level:").append(level).toString();
     }
 
-    public String getFancyInventory() {
+    public String getInventoryHTML() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < inventory.size(); i++) {
             if (i == inventoryCursor) {
@@ -324,12 +314,43 @@ public abstract class AbstractPlayer implements Entity {
         return sb.toString();
     }
 
-    public String getFancySlots() {
+    private String decodeEffectHTML(EffectType effectType, int amount) {
+        StringBuilder sb = new StringBuilder().append("+").append(amount).append(" ");
+        switch (effectType) {
+            case DEFENSE:
+                return sb.append("DEF   ").toString();
+            case HP_BONUS:
+                return sb.append("HP   ").toString();
+            case MP_BONUS:
+                return sb.append("MP   ").toString();
+            case INT_BONUS:
+                return sb.append("INT   ").toString();
+            case STR_BONUS:
+                return sb.append("STR   ").toString();
+            case NONE:
+            default:
+                return "";
+
+        }
+    }
+
+    public String getSlotsHTML() {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<SlotType,Equippable> entry : slotsAndEquippables.entrySet()) {
-            sb.append(entry.getKey()+" : " + entry.getValue() + "<br>");
+
+        for (Map.Entry<SlotType, Equippable> entry : slotsAndEquippables.entrySet()) {
+            if (entry.getValue() != null) {
+                sb.append(entry.getKey()).append(" : ").append(entry.getValue().toStringHTML()).append("<br>");
+                for (ItemEffect itemEffect : entry.getValue().getItemEffects()) {
+                    sb.append("&nbsp;&nbsp;&nbsp;&nbsp;").append(decodeEffectHTML(itemEffect.getEffectType(), itemEffect.getAmount()));
+                }
+                sb.append("<br>");
+
+            } else {
+                sb.append(entry.getKey()).append(" : <br>");
+            }
         }
         return sb.toString();
+
     }
 
     public String getStatsHTML() {
@@ -343,17 +364,9 @@ public abstract class AbstractPlayer implements Entity {
                 .append("Defense: ").append(defense).append("<br>")
                 .append("Experience: ").append(experiencePoints).append("<br>")
                 .append("Level: ").append(level).append("<br>")
-                .append("Slots: ").append("<br>").append(getFancySlots())
-                .append("Inventory: ").append("<br>").append(getFancyInventory())
+                .append("Slots: ").append("<br>").append(getSlotsHTML())
+                .append("Inventory: ").append("<br>").append(getInventoryHTML())
                 .append("</html>").toString();
-    }
-
-    public String getInventory() {
-        return inventory.toString();
-    }
-
-    public Map<SlotType, Equippable> getSlotsAndEquippables() {
-        return slotsAndEquippables;
     }
 
     public Position getPosition() {
@@ -368,15 +381,17 @@ public abstract class AbstractPlayer implements Entity {
         this.position = position;
     }
 
-    public String getSprite() {
-        return sprite;
-    }
-
-    public int dealDamage() {
-        return 100;
-    }
-
     public void takeDamage(int dmg) {
         hitPoints -= dmg;
+    }
+
+    @Override
+    public List<String> getSprites() {
+        return Arrays.asList(this.sprite);
+    }
+
+    @Override
+    public Position getDrawablePosition() {
+        return new Position(position.getI(), position.getJ() - 1);
     }
 }

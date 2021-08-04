@@ -6,14 +6,14 @@ import java.util.HashMap;
 public class Warrior extends AbstractPlayer {
 
     public Warrior() {
-        super("wizard.png",
-                Arrays.asList(SlotType.WAND, SlotType.MAIN_HAND, SlotType.FINGER));
-        setXPprogression();
+        super("knight.png",
+                Arrays.asList(SlotType.MAIN_HAND, SlotType.OFF_HAND),
+                4);
+        setXPProgression();
         setStatsProgression();
     }
 
-
-    public void setXPprogression() {
+    public void setXPProgression() {
         // MinHP for Level - Level
 //        this.xpLevelsProgression = Map.of(
 //                0, 1,
@@ -37,14 +37,14 @@ public class Warrior extends AbstractPlayer {
 
         //HP - MP - Str - Int
         // 1,2,3..: For progression (Level 1,2,3..)
-        playerProgression.put(1, new int[]{15, 40, 0, 20});
-        playerProgression.put(2, new int[]{5, 10, 0, 5});
-        playerProgression.put(3, new int[]{5, 10, 0, 5});
-        playerProgression.put(4, new int[]{5, 20, 0, 10});
-        playerProgression.put(5, new int[]{5, 20, 0, 15});
-        playerProgression.put(6, new int[]{15, 20, 0, 25});
+        playerProgression.put(1, new int[]{30,0,10,0});
+        playerProgression.put(2, new int[]{40,0,15,0});
+        playerProgression.put(3, new int[]{50,0,25,0});
+        playerProgression.put(4, new int[]{60,0,40,0});
+        playerProgression.put(5, new int[]{80,0,40,0});
+        playerProgression.put(6, new int[]{100,0,50,0});
 
-        this.playerStatsProgression = playerProgression;
+        this.statsProgression = playerProgression;
 
         this.hitPoints = playerProgression.get(1)[0];
         this.maxHitPoints = playerProgression.get(1)[0];
@@ -57,12 +57,9 @@ public class Warrior extends AbstractPlayer {
         this.intelligence = playerProgression.get(1)[3];
     }
 
-
-//    public static void main(String[] args) {
-//        Wizard wizard = new Wizard(new Position(1, 2));
-//        System.out.println(wizard.getStats());
-//        wizard.addXP(350);
-//        System.out.println(wizard.getStats());
-//    }
+    @Override
+    public int dealDamage() {
+        return 100;
+    }
 }
 

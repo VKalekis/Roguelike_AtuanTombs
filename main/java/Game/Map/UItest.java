@@ -105,7 +105,7 @@ class MapComponent extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        roomMap.drawMap(g);
+       // roomMap.drawMap(g);
         //roomMap.drawFocusedMap(g,player);
     }
 
