@@ -1,8 +1,6 @@
 package Game.Enemies;
 
-import Game.Map.Position;
-
-public class IceZombie extends Enemy{
+public class IceZombie extends Enemy {
     public IceZombie() {
         super("Ice Zombie",
                 25,

@@ -24,7 +24,7 @@ public class Dice {
 
     @Override
     public String toString() {
-        return  numberOfDices + "d" + numberOfSides + "+" +  bonus;
+        return numberOfDices + "d" + numberOfSides + "+" + bonus;
     }
 
     public int roll() {

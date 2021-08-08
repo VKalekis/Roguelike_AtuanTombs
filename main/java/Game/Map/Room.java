@@ -1,10 +1,15 @@
 package Game.Map;
 
 
-import Game.Items.*;
-import Game.PlayerSrc.AbstractPlayer;
+import Game.Items.EquippableFactory;
+import Game.Items.EquippableItem;
+import Game.Items.UsableFactory;
+import Game.Items.UsableItem;
+import Game.Player.AbstractPlayer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Room {
@@ -50,14 +55,13 @@ public class Room {
 
     public void addConnectedRoom(Room connectedRoom) {
         Position pos = roomMap.addExit();
-        System.out.println(pos+"///");
         this.connectedRoomsMap.put(pos, connectedRoom);
-        System.out.println(connectedRoomsMap);
+        System.out.println(this.name + " connects to " + connectedRoom.getName());
     }
 
-    public void setTextures() {
-        roomMap.setFloorsTextures();
-        roomMap.setWallsTextures();
+    public void setSprites() {
+        roomMap.setFloorsSprites();
+        roomMap.setWallsSprites();
     }
 
     public Room goTo(Position position) {
@@ -100,12 +104,18 @@ public class Room {
     }
 
     public void generateUsables(AbstractPlayer player) {
-        usablesMap.clear();
-
-        for (int i=0;i<5;i++) {
+        for (int i = 0; i < 5; i++) {
             Position randomPosition = roomMap.getRandomPosition(MapTileType.FLOOR);
             usablesMap.put(randomPosition, usableFactory.makeUsable(player.getClass(), randomPosition));
         }
+    }
+
+    public void addUsable(AbstractPlayer player, Position position) {
+        usablesMap.put(position, usableFactory.makeUsable(player.getClass(), position));
+    }
+
+    public void clearUsables() {
+        usablesMap.clear();
     }
 
     public Map<Position, UsableItem> getUsablesMap() {
@@ -113,12 +123,14 @@ public class Room {
     }
 
     public void generateEquippables(AbstractPlayer player) {
-        equippablesMap.clear();
-
-        for (int i=0;i<4;i++) {
+        for (int i = 0; i < 4; i++) {
             Position randomPosition = roomMap.getRandomPosition(MapTileType.FLOOR);
-            equippablesMap.put(randomPosition, equippableFactory.makeEquippable(player,randomPosition));
+            equippablesMap.put(randomPosition, equippableFactory.makeEquippable(player, randomPosition));
         }
+    }
+
+    public void clearEquippables() {
+        equippablesMap.clear();
     }
 
     public Map<Position, EquippableItem> getEquippablesMap() {

@@ -1,9 +1,7 @@
 package Game.Items;
 
-import Game.Map.MapTileType;
 import Game.Map.Position;
-import Game.Player;
-import Game.PlayerSrc.Wizard;
+import Game.Player.Wizard;
 
 import java.util.Random;
 

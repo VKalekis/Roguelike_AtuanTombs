@@ -11,6 +11,7 @@ public class Position {
         this.j = j;
     }
 
+    // Constructor with no parameters -> 0,0
     public Position() {
         this.i = 0;
         this.j = 0;
@@ -58,10 +59,6 @@ public class Position {
         Random random = new Random();
         this.i = random.nextInt(60) + 1;
         this.j = random.nextInt(60) + 1;
-    }
-
-    public boolean validPosition() {
-        return !((i == 0) || (i == 61) || (j == 0) || (j == 61));
     }
 
     public double getDistance(Position position1) {

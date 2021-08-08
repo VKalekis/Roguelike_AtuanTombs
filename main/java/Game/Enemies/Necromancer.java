@@ -1,8 +1,6 @@
 package Game.Enemies;
 
-import Game.Map.Position;
-
-public class Necromancer extends Enemy{
+public class Necromancer extends Enemy {
     public Necromancer() {
         super("Necromancer",
                 60,

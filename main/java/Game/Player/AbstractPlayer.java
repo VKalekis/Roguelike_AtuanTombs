@@ -1,13 +1,17 @@
-package Game.PlayerSrc;
+package Game.Player;
 
-import Game.Drawable;
-import Game.Entity;
-import Game.Items.*;
+import Game.Items.EffectType;
+import Game.Items.Equippable;
+import Game.Items.ItemEffect;
+import Game.Items.Usable;
 import Game.Map.Position;
+import Game.State.Drawable;
+import Game.State.Entity;
 
 import java.util.*;
 
 public abstract class AbstractPlayer implements Entity, Drawable {
+    protected String name;
     protected Position position;
     protected String sprite;
     protected int maxHitPoints, hitPoints;
@@ -22,15 +26,17 @@ public abstract class AbstractPlayer implements Entity, Drawable {
     protected Map<Integer, int[]> statsProgression;
 
     protected Map<SlotType, Equippable> slotsAndEquippables;
-    protected List<Item> inventory;
+    protected List<Usable> inventory;
     protected int inventoryCursor;
 
     protected abstract void setXPProgression();
+
     protected abstract void setStatsProgression();
+
     public abstract int dealDamage();
 
-    public AbstractPlayer(String sprite, List<SlotType> availableSlots, int visibility) {
-
+    public AbstractPlayer(String name, String sprite, List<SlotType> availableSlots, int visibility) {
+        this.name = name;
         this.sprite = sprite;
         this.experiencePoints = 0;
         this.level = 1;
@@ -46,33 +52,6 @@ public abstract class AbstractPlayer implements Entity, Drawable {
         this.visibility = visibility;
     }
 
-    public void pickUp(Item item) {
-        // Max Items - 10
-        if (inventory.size() < 10) {
-            inventory.add(item);
-        }
-    }
-
-    public boolean dropItem() {
-        try {
-            inventory.remove(inventoryCursor);
-            if (inventoryCursor >= inventory.size()) {
-                inventoryCursor = inventory.size() - 1;
-            }
-            return true;
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private boolean drop(Item item) {
-        if (inventory.contains(item)) {
-            inventory.remove(item);
-            return true;
-        }
-        return false;
-    }
 
     public boolean isSlotEmpty(SlotType slot) {
         return slotsAndEquippables.get(slot) == null;
@@ -85,9 +64,15 @@ public abstract class AbstractPlayer implements Entity, Drawable {
                 break;
             case HP_BONUS:
                 maxHitPoints += amount;
+                if (amount < 0 && hitPoints > maxHitPoints) {
+                    hitPoints = maxHitPoints;
+                }
                 break;
             case MP_BONUS:
                 maxManaPoints += amount;
+                if (amount < 0 && manaPoints > maxManaPoints) {
+                    manaPoints = maxManaPoints;
+                }
                 break;
             case INT_BONUS:
                 intelligence += amount;
@@ -111,6 +96,8 @@ public abstract class AbstractPlayer implements Entity, Drawable {
                 if (hitPoints > maxHitPoints) {
                     hitPoints = maxHitPoints;
                 }
+
+
                 break;
             case MP_REPLENISH:
                 if (maxManaPoints != 0) {
@@ -125,7 +112,6 @@ public abstract class AbstractPlayer implements Entity, Drawable {
                 break;
         }
     }
-
 
     public boolean equip(SlotType slot, Equippable equippable) {
         if ((slotsAndEquippables.containsKey(slot)) && (isSlotEmpty(slot)) && (equippable.getSlot() == slot)) {
@@ -151,7 +137,6 @@ public abstract class AbstractPlayer implements Entity, Drawable {
     }
 
     public void moveInventoryCursor(int offset) {
-
         this.inventoryCursor += offset;
         if (inventoryCursor < 0) {
             inventoryCursor = inventory.size();
@@ -159,32 +144,54 @@ public abstract class AbstractPlayer implements Entity, Drawable {
         if (inventoryCursor > inventory.size() - 1) {
             inventoryCursor = 0;
         }
-        System.out.println(inventoryCursor);
     }
 
-    public void use() {
+    public boolean pickUp(Usable usable) {
+        // Max Items - 10
+        if (inventory.size() < 10) {
+            inventory.add(usable);
+            return true;
+        }
+        return false;
+    }
+
+    public Usable drop() {
         try {
-            Usable usable = (Usable) inventory.get(inventoryCursor);
+            Usable usable = inventory.get(inventoryCursor);
+            inventory.remove(inventoryCursor);
+            if (inventoryCursor > 0) {
+                inventoryCursor--;
+            }
+            return usable;
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public Usable use() {
+        try {
+            Usable usable = inventory.get(inventoryCursor);
             if (usable.getUsesLeft() > 0) {
                 for (ItemEffect itemEffect : usable.getItemEffects()) {
                     decodeUsableEffect(itemEffect.getEffectType(), itemEffect.getAmount());
                 }
                 usable.decreaseUses();
                 if (usable.getUsesLeft() == 0) {
-                    drop(usable);
+                    inventory.remove(usable);
                 }
+                return usable;
             }
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
-        }
 
+        }
+        return null;
     }
 
-    public void addXP(int xp) {
+    public boolean addXP(int xp) {
         experiencePoints += xp;
-
-        // Don't like it, alla den mporesa na skeftw kati kalutero wste na gnwrizoume ka8e stigmh to level kai ta stats tou.
-        // Tsekarei sunexeia an anebhke level akoma kai an phre 1XP.
 
         int oldlevel = level;
         level = calculateLevel();
@@ -202,7 +209,9 @@ public abstract class AbstractPlayer implements Entity, Drawable {
             strength = stats[2];
 
             intelligence = stats[3];
+            return true;
         }
+        return false;
     }
 
     public void removeXP(int xp) {
@@ -265,6 +274,10 @@ public abstract class AbstractPlayer implements Entity, Drawable {
         return hitPoints;
     }
 
+    public boolean isAlive() {
+        return hitPoints > 0;
+    }
+
     public int getMaxManaPoints() {
         return maxManaPoints;
     }
@@ -290,7 +303,8 @@ public abstract class AbstractPlayer implements Entity, Drawable {
     }
 
     public String getStats() {
-        return new StringBuilder().append("Hitpoints:").append(hitPoints)
+        return new StringBuilder().append("Name:").append(name)
+                .append(" Hitpoints:").append(hitPoints)
                 .append(" MaxHitPoints:").append(maxHitPoints)
                 .append(" Manapoints:").append(manaPoints)
                 .append(" MaxManaPoints:").append(maxManaPoints)
@@ -298,7 +312,9 @@ public abstract class AbstractPlayer implements Entity, Drawable {
                 .append(" Intelligence:").append(intelligence)
                 .append(" Defense:").append(defense)
                 .append(" Experience:").append(experiencePoints)
-                .append(" Level:").append(level).toString();
+                .append(" Level:").append(level)
+                .append(" Inventory:").append(inventory)
+                .append(" Slots&Equippables").append(slotsAndEquippables).toString();
     }
 
     public String getInventoryHTML() {
@@ -330,7 +346,6 @@ public abstract class AbstractPlayer implements Entity, Drawable {
             case NONE:
             default:
                 return "";
-
         }
     }
 
@@ -339,9 +354,9 @@ public abstract class AbstractPlayer implements Entity, Drawable {
 
         for (Map.Entry<SlotType, Equippable> entry : slotsAndEquippables.entrySet()) {
             if (entry.getValue() != null) {
-                sb.append(entry.getKey()).append(" : ").append(entry.getValue().toStringHTML()).append("<br>");
+                sb.append(entry.getKey()).append(" : ").append(entry.getValue().toStringHTML()).append("  ");
                 for (ItemEffect itemEffect : entry.getValue().getItemEffects()) {
-                    sb.append("&nbsp;&nbsp;&nbsp;&nbsp;").append(decodeEffectHTML(itemEffect.getEffectType(), itemEffect.getAmount()));
+                    sb.append(" ").append(decodeEffectHTML(itemEffect.getEffectType(), itemEffect.getAmount()));
                 }
                 sb.append("<br>");
 
@@ -350,11 +365,11 @@ public abstract class AbstractPlayer implements Entity, Drawable {
             }
         }
         return sb.toString();
-
     }
 
     public String getStatsHTML() {
         return new StringBuilder("<html>").append("<u>Player stats:</u>").append("<br>")
+                .append("Name: ").append(name).append("<br>")
                 .append("Hitpoints: ").append(hitPoints)
                 .append("/").append(maxHitPoints).append("<br>")
                 .append("Manapoints: ").append(manaPoints)
@@ -373,8 +388,8 @@ public abstract class AbstractPlayer implements Entity, Drawable {
         return position;
     }
 
-    public void movePlayer(String dir) {
-        position.shiftDir(dir);
+    public void move(Position position) {
+        this.position = position;
     }
 
     public void setStartingPosition(Position position) {
@@ -382,7 +397,7 @@ public abstract class AbstractPlayer implements Entity, Drawable {
     }
 
     public void takeDamage(int dmg) {
-        hitPoints -= dmg;
+        hitPoints -= (dmg - defense);
     }
 
     @Override

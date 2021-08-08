@@ -1,8 +1,6 @@
 package Game.Enemies;
 
-import Game.Map.Position;
-
-public class OrcShaman extends Enemy{
+public class OrcShaman extends Enemy {
     public OrcShaman() {
         super("Orc Shaman",
                 50,

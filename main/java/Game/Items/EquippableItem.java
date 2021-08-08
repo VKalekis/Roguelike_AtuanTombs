@@ -1,16 +1,14 @@
 package Game.Items;
 
 import Game.Map.Position;
-import Game.PlayerSrc.SlotType;
+import Game.Player.SlotType;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class EquippableItem implements Equippable {
     private String name;
-    //private String description;
     private Position position;
     private ArrayList<ItemEffect> itemEffects;
     private SlotType slot;
@@ -24,11 +22,6 @@ public class EquippableItem implements Equippable {
     public String getName() {
         return name;
     }
-
-//    @Override
-//    public String getDescription() {
-//        return description;
-//    }
 
     @Override
     public ArrayList<ItemEffect> getItemEffects() {
@@ -54,6 +47,11 @@ public class EquippableItem implements Equippable {
         return position;
     }
 
+    // For changing position when dropped from player.
+    public void setNewPosition(Position position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -61,8 +59,7 @@ public class EquippableItem implements Equippable {
             sb.append("    ").append(itemEffect).append("\n");
 
         }
-        return new StringBuilder().append(name).append(" - Item effects:\n")
-                .append(sb).toString();
+        return new StringBuilder().append(name).append(" - Item effects:\n").append(sb).toString();
     }
 
     public String toStringHTML() {
@@ -71,7 +68,7 @@ public class EquippableItem implements Equippable {
     }
 
     public static class EquippableBuilder {
-        private EquippableItem equippableItem;
+        private final EquippableItem equippableItem;
 
         public EquippableBuilder() {
             equippableItem = new EquippableItem();
@@ -81,11 +78,6 @@ public class EquippableItem implements Equippable {
             equippableItem.name = name;
             return this;
         }
-
-//        public EquippableBuilder withDescription(String description) {
-//            equippableItem.description = description;
-//            return this;
-//        }
 
         public EquippableBuilder withSprite(String sprite) {
             equippableItem.sprite = sprite;

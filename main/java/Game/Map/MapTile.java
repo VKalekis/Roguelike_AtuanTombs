@@ -1,9 +1,8 @@
 package Game.Map;
 
-import Game.Drawable;
-import Game.Entity;
+import Game.State.Drawable;
+import Game.State.Entity;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class MapTile implements Drawable {
@@ -73,14 +72,11 @@ public class MapTile implements Drawable {
         this.sprites.add(sprite);
     }
 
-    public void deleteTexture() {
-        this.sprites = new ArrayList<>();
-    }
-
-    public double getDistance(MapTile mapTile1){
+    public double getDistance(MapTile mapTile1) {
         return this.position.getDistance(mapTile1.getPosition());
     }
 
+    // Method getCost-setCost are used for A* pathfinding algorithm.
     public int getCost() {
         return cost;
     }
@@ -90,7 +86,7 @@ public class MapTile implements Drawable {
     }
 
     public boolean isOccupied() {
-        return occupiedEntity!=null;
+        return occupiedEntity != null;
     }
 
     public void setOccupiedEntity(Entity entity) {
@@ -102,7 +98,7 @@ public class MapTile implements Drawable {
     }
 
     public void setEmpty() {
-        this.occupiedEntity=null;
+        this.occupiedEntity = null;
     }
 
     @Override

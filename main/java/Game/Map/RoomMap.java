@@ -1,19 +1,11 @@
 package Game.Map;
 
-import Game.Enemies.Enemy;
-import Game.Entity;
-import Game.Items.EquippableItem;
-import Game.Items.UsableItem;
-import Game.PlayerSrc.AbstractPlayer;
+import Game.State.Entity;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Stack;
 
 
 public class RoomMap {
@@ -37,7 +29,7 @@ public class RoomMap {
         this.exits = new ArrayList<>();
     }
 
-    public void collectLists() {
+    public void createTileLists() {
         walls.clear();
         floors.clear();
         for (int i = 0; i < WIDTH + 2; i++) {
@@ -75,7 +67,6 @@ public class RoomMap {
                 }
             }
         }
-        //collectLists();
     }
 
     //http://pixelenvy.ca/wa/ca_cave.html
@@ -101,7 +92,7 @@ public class RoomMap {
                 }
             }
         }
-        System.out.println("Ended");
+        System.out.println("Ended Cellular Automata.");
     }
 
     public void floodFill() {
@@ -110,11 +101,9 @@ public class RoomMap {
         while (mapTiles[position.getI()][position.getJ()].getMapTileType() == MapTileType.WALL) {
             position.randomize();
         }
-        System.out.println(position);
 
         Stack<MapTile> mapTileStack = new Stack<>();
         mapTileStack.push(mapTiles[position.getI()][position.getJ()]);
-
 
         while (!mapTileStack.isEmpty()) {
             MapTile poppedMapTile = mapTileStack.pop();
@@ -140,8 +129,7 @@ public class RoomMap {
                 }
             }
         }
-        collectLists();
-
+        createTileLists();
     }
 
     public double getFillRate() {
@@ -223,66 +211,78 @@ public class RoomMap {
         return cardinalMapTileArrayList;
     }
 
-    public void setWallsTextures() {
-
+    public void setWallsSprites() {
+        /* Sets the wall sprites. It's over-complicated and I'm not 100% satisfied with the final result.
+           In some cases, a wall sprite is assigned to a floor tile, which doesn't seem correct.
+         */
         for (MapTile wall : walls) {
             int wall_i = wall.getPosition().getI();
             int wall_j = wall.getPosition().getJ();
 
             if (getSurroundingWallsCardinalSum(wall_i, wall_j) != 4) {
-                // W1
-                // W2 F
-                // W3
-                // Draw W2 as left wall side.
-                if ((wall_i > 0) && (wall_i < 60) && (mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.FLOOR) && (mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.WALL) && (mapTiles[wall_i][wall_j - 1].getMapTileType() == MapTileType.WALL)) {
-                    //wall.addsprite("img_side_left");
-                    mapTiles[wall_i + 1][wall_j].addsprite("wall_side_mid_right.png");
-                }
-                //   W1
-                // F W2
-                //   W3
-                // Draw W2 as right wall side.
-                else if ((wall_i < 61) && (wall_i > 1) && (mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.FLOOR) && (mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.WALL) && (mapTiles[wall_i][wall_j - 1].getMapTileType() == MapTileType.WALL)) {
-                    //wall.addsprite("img_side_right");
-                    mapTiles[wall_i - 1][wall_j].addsprite("wall_side_mid_left.png");
-                } else {
 
-                    // W W<-
-                    // W F
+                if ((wall_i > 0) && (wall_i < 60) && (mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.FLOOR) && (mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.WALL) && (mapTiles[wall_i][wall_j - 1].getMapTileType() == MapTileType.WALL)) {
+                    /*
+                     W1
+                     W2 F
+                     W3
+                     Draw F as left wall side.
+                  */
+                    mapTiles[wall_i + 1][wall_j].addsprite("wall_side_mid_left.png");
+                } else if ((wall_i < 61) && (wall_i > 1) && (mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.FLOOR) && (mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.WALL) && (mapTiles[wall_i][wall_j - 1].getMapTileType() == MapTileType.WALL)) {
+                    /*
+                         W1
+                       F W2
+                         W3
+                       Draw F as right wall side.
+                   */
+                    mapTiles[wall_i - 1][wall_j].addsprite("wall_side_mid_right.png");
+                } else {
+                    /* W W<-
+                       W F
+                     */
                     if (wall_i > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.FLOOR) {
                         wall.addsprite("wall_corner_left.png");
-                        // Subcase:
-                        // W W W
-                        // W F W
+                        /* Subcase:
+                           W W<- W
+                           W F   W
+                         */
                         if (wall_i < 61 && wall_j > 1 && mapTiles[wall_i + 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
-                            wall.addsprite("wall_side_mid_left.png");
-                        }
-                    }
-                    // ->W W
-                    //   F W
-                    else if (wall_i < 60 && wall_j < 60 && mapTiles[wall_i + 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.FLOOR) {
-                        wall.addsprite("wall_corner_right.png");
-
-                        // Subcase:
-                        // W W W
-                        // W F W
-                        if (wall_i > 1 && wall_j > 1 && mapTiles[wall_i - 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL) {
                             wall.addsprite("wall_side_mid_right.png");
                         }
                     }
-                    //F W<-
-                    //W W
+                    /* ->W W
+                         F W
+                     */
+                    else if (wall_i < 60 && wall_j < 60 && mapTiles[wall_i + 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.FLOOR) {
+                        wall.addsprite("wall_corner_right.png");
+                        /* Subcase:
+                           W ->W W
+                           W   F W
+                         */
+                        if (wall_i > 1 && wall_j > 1 && mapTiles[wall_i - 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL) {
+                            wall.addsprite("wall_side_mid_left.png");
+                        }
+                    }
+                    /* F W<-
+                       W W
+                     */
                     else if (wall_i > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.FLOOR) {
                         wall.addsprite("wall_corner_left.png");
-
                     }
-                    // ->W F
-                    //   W W
+                    /* ->W F
+                         W W
+                     */
                     else if (wall_i < 60 && wall_j < 60 && mapTiles[wall_i + 1][wall_j + 1].getMapTileType() == MapTileType.WALL && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.FLOOR) {
                         wall.addsprite("wall_corner_right.png");
                     } else {
+                        // Default case.
                         wall.addsprite("wall_mid.png");
 
+                        /* Extra (random) sprites for following configuration:
+                           W <-
+                           F
+                         */
                         if (wall_j < 60 && mapTiles[wall_i][wall_j + 1].getMapTileType() == MapTileType.FLOOR) {
 
                             Random random = new Random();
@@ -297,26 +297,23 @@ public class RoomMap {
                             } else if (rnd == 46) {
                                 wall.addsprite("wall_banner_yellow.png");
                             } else if (rnd == 45) {
-                                if (wall_i > 1 && wall_i < 60 && wall_j > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL
-                                        && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
-
+                                if (wall_i > 1 && wall_i < 60 && wall_j > 1 && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
                                     mapTiles[wall_i][wall_j + 1].addsprite("wall_fountain_basin_blue.png");
                                     wall.addsprite("wall_fountain_mid_blue.png");
                                     mapTiles[wall_i][wall_j - 1].addsprite("wall_fountain_top.png");
                                 }
                             } else if (rnd == 44) {
-                                if (wall_i > 1 && wall_i < 60 && wall_j > 1 && wall_j < 60 && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL
-                                        && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
+                                if (wall_i > 1 && wall_i < 60 && wall_j > 1 && mapTiles[wall_i - 1][wall_j].getMapTileType() == MapTileType.WALL && mapTiles[wall_i + 1][wall_j].getMapTileType() == MapTileType.WALL) {
 
                                     mapTiles[wall_i][wall_j + 1].addsprite("wall_fountain_basin_red.png");
                                     wall.addsprite("wall_fountain_mid_red.png");
                                     mapTiles[wall_i][wall_j - 1].addsprite("wall_fountain_top.png");
                                 }
                             }
-                        }
 
+                        }
                     }
-                    // Insert top wall texture at non-border walls.
+                    // Insert top wall sprite at non-border walls. The sprite is added at the floor above of the wall.
                     if (wall_j > 1 && wall_i > 0 && wall_i < 61) {
                         mapTiles[wall_i][wall_j - 1].addsprite("wall_top_mid.png");
                     }
@@ -329,31 +326,33 @@ public class RoomMap {
 
     }
 
-    public void setFloorsTextures() {
+    public void setFloorsSprites() {
+        // Sets the floor sprites. If the floor is not an EXIT or an ENTRANCE, then a random sprite is used.
         for (MapTile floor : floors) {
             if (floor.getMapTileType() == MapTileType.EXIT) {
-                floor.addsprite("floor_ladder.png");
+                floor.addsprite("floor_exit.png");
             } else if (floor.getMapTileType() == MapTileType.ENTRANCE) {
-                System.out.println(floor.getPosition() + "Im an Entrance");
-                floor.addsprite("floor_hole.png");
-                System.out.println(floor.getSprites());
+                floor.addsprite("floor_entrance.png");
             } else {
                 int rand = new Random().nextInt(100) + 1;
+                /* Overcomplicated - didn't want to write big case statement.
+                8 available floor textures.
+                Random rand from: 1-100
+                1-51 -> floor0 (rand/51=0 -> prob=0)
+                52-100 -> assigned to floor1,...floor7 with the same probability using modulo function.
+                 rand/51=1 -> rand-51 % 7
+                 */
                 int prob = (rand / 65) * ((rand - 65) % 7);
-                //Overcomplicated - didn't want to write big case statement.
-                //8 available floor textures.
-                //Random rand from: 1-100
-                //1-51 -> floor0 (rand/51=0 -> prob=0)
-                //52-100 -> assigned to floor1,...floor7 with the same probability using modulo function.
-                // rand/51=1 -> rand-51 % 7
+
                 floor.addsprite("floor_" + prob + ".png");
             }
-
         }
 
     }
 
-    public boolean tileVisible(int i1, int j1, int i2, int j2, int playerVisibility) {
+    private boolean tileVisible(int i1, int j1, int i2, int j2, int playerVisibility) {
+        /* Finds if a Position (i1,j1) is visible from a Position (i2,j2) using a Euclidean distance metric
+         of radius playerVisibility */
         return Math.sqrt(Math.pow(i2 - i1, 2) + Math.pow(j2 - j1, 2)) < playerVisibility;
     }
 
@@ -373,7 +372,7 @@ public class RoomMap {
         }
         exit.setMapTileType(MapTileType.EXIT);
         exits.add(exit);
-        System.out.println(exit);
+
         return exit.getPosition();
     }
 
@@ -416,7 +415,6 @@ public class RoomMap {
     }
 
     public void findVisibleTiles(Position position, int playerVisibility) {
-
         for (int i = 0; i < 62; i++) {
             for (int j = 0; j < 62; j++) {
                 if (tileVisible(i, j, position.getI(), position.getJ(), playerVisibility)) {
@@ -437,16 +435,12 @@ public class RoomMap {
     }
 
     public List<MapTile> getVisibleFloors() {
-
         List<MapTile> visibleFloorList = new ArrayList<>();
         for (MapTile floor : floors) {
-            //System.out.println(floor.getMapTileState());
             if (floor.getMapTileState() == MapTileState.VISIBLE) {
-                System.out.println("eee");
                 visibleFloorList.add(floor);
             }
         }
-        System.out.println("uuu" + visibleFloorList);
         return visibleFloorList;
     }
 

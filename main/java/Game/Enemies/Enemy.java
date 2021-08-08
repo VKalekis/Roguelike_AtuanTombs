@@ -1,18 +1,13 @@
 package Game.Enemies;
 
-import Game.Astar;
-import Game.Drawable;
-import Game.Entity;
 import Game.Map.Position;
 import Game.Map.RoomMap;
+import Game.State.Drawable;
+import Game.State.Entity;
 
-import java.util.*;
-
-//GiantRat -> Goblin
-//MadGuard -> Ice Zombie
-//Skeleton -> Swampy
-//SkeletonLord -> OrcShaman
-//Shade -> Necromancer
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 abstract public class Enemy implements Entity, Drawable {
 
@@ -51,12 +46,12 @@ abstract public class Enemy implements Entity, Drawable {
         return hitpoints;
     }
 
-    public String getName() {
-        return name;
+    public boolean isAlive() {
+        return hitpoints > 0;
     }
 
-    public String getSprite() {
-        return sprite;
+    public String getName() {
+        return name;
     }
 
     public int dealDamage() {

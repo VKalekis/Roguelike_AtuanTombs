@@ -1,8 +1,6 @@
 package Game.Enemies;
 
-import Game.Map.Position;
-
-public class Swampy extends Enemy{
+public class Swampy extends Enemy {
     public Swampy() {
         super("Swampy",
                 30,

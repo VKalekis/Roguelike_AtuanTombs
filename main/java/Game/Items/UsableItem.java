@@ -8,7 +8,6 @@ import java.util.List;
 
 public class UsableItem implements Usable {
     private String name;
-    //private String description;
     private Position position;
     private ArrayList<ItemEffect> itemEffects;
     private int usesLeft;
@@ -23,11 +22,6 @@ public class UsableItem implements Usable {
     public String getName() {
         return name;
     }
-
-//    @Override
-//    public String getDescription() {
-//        return description;
-//    }
 
     @Override
     public ArrayList<ItemEffect> getItemEffects() {
@@ -51,7 +45,7 @@ public class UsableItem implements Usable {
 
     @Override
     public String toString() {
-        return name + "- Uses Left: " + usesLeft + "/" +uses;
+        return name + "- Uses Left: " + usesLeft + "/" + uses;
     }
 
     @Override
@@ -80,11 +74,6 @@ public class UsableItem implements Usable {
             usableItem.name = name;
             return this;
         }
-
-//        public UsableBuilder withDescription(String description) {
-//            usableItem.description = description;
-//            return this;
-//        }
 
         public UsableBuilder withSprite(String sprite) {
             usableItem.sprite = sprite;

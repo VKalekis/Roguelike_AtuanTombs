@@ -1,7 +1,5 @@
 package Game.Enemies;
 
-import Game.Map.Position;
-
 public class Goblin extends Enemy {
     public Goblin() {
         super("Goblin",

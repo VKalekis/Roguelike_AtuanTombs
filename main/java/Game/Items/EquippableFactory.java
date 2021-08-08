@@ -1,10 +1,7 @@
 package Game.Items;
 
 import Game.Map.Position;
-import Game.PlayerSrc.AbstractPlayer;
-import Game.PlayerSrc.SlotType;
-import Game.PlayerSrc.Warrior;
-import Game.PlayerSrc.Wizard;
+import Game.Player.*;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -12,15 +9,15 @@ import java.util.Random;
 
 public class EquippableFactory {
 
-    private String[] adjectives;
-    private Map<Class, String[]> availableWeaponTypes;
-    private Map<String, Integer> numberOfSprites;
-    private Map<String, SlotType> slots;
-    private String[] surnames;
+    private final String[] adjectives;
+    private final Map<Class, String[]> availableWeaponTypes;
+    private final Map<String, Integer> numberOfSprites;
+    private final Map<String, SlotType> slots;
+    private final String[] surnames;
 
     public EquippableFactory() {
 
-        this.adjectives = new String[]{"Fierce", "Stubborn", "Pure", "Ancient"};
+        this.adjectives = new String[]{"Fierce", "Stubborn", "Pure", "Ancient", "Giant"};
 
         this.availableWeaponTypes = Map.of(
                 Warrior.class, new String[]{"Sword", "Axe", "Shield"},
@@ -40,7 +37,8 @@ public class EquippableFactory {
                 "Staff", SlotType.MAIN_HAND
         );
 
-        this.surnames = new String[]{"of the Champion", "of Erreth-Akbe", "of Rok"};
+        this.surnames = new String[]{"of the Champion", "of Erreth-Akbe", "of Rok", "of Light", "of Hope",
+                "of Courage", "of Destruction"};
     }
 
     public EquippableItem makeEquippable(AbstractPlayer player, Position position) {
@@ -53,7 +51,7 @@ public class EquippableFactory {
         // Adjective
         name.append(adjectives[random.nextInt(adjectives.length)]).append(" ");
         // Weapon type
-        if (player.getClass() == Wizard.class) {
+        if (player.getClass() == Wizard.class || player.getClass() == WizardDebug.class) {
             weaponType = availableWeaponTypes.get(Wizard.class)[random.nextInt(availableWeaponTypes.get(Wizard.class).length)];
         } else {
             weaponType = availableWeaponTypes.get(Warrior.class)[random.nextInt(availableWeaponTypes.get(Warrior.class).length)];
@@ -82,7 +80,7 @@ public class EquippableFactory {
         EffectType secondStat = otherEffects[random.nextInt(otherEffects.length)];
         effects.add(new ItemEffect(secondStat, itemLevel));
 
-        EquippableItem equippableItem = new EquippableItem.EquippableBuilder()
+        return new EquippableItem.EquippableBuilder()
                 .named(name.toString())
                 .withSprite(new StringBuilder().append(weaponType.toLowerCase()).append("_")
                         .append(random.nextInt(numberOfSprites.get(weaponType))).append(".png").toString())
@@ -90,7 +88,6 @@ public class EquippableFactory {
                 .withItemEffects(effects)
                 .atSlot(slots.get(weaponType))
                 .build();
-        return equippableItem;
 
     }
 }

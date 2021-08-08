@@ -1,8 +1,9 @@
 package Game.Items;
 
-import Game.PlayerSrc.SlotType;
+import Game.Player.SlotType;
 
-public interface Equippable extends Item{
-        SlotType getSlot();
-        String toStringHTML();
+public interface Equippable extends Item {
+    SlotType getSlot();
+
+    String toStringHTML();
 }
