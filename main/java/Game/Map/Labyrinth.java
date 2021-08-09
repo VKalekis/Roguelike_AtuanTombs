@@ -53,7 +53,7 @@ public class Labyrinth {
         Room theRedRockRoom = new Room("The Red Rock Room",
                 "Noone has crossed the Red Rock Door, ever.",
                 roomMapArrayList.get(5));
-        Room theUndergroundGarden = new Room("The underground garden",
+        Room theUndergroundGarden = new Room("The Underground Garden",
                 "A Garden of Wanders in a place so dark.",
                 roomMapArrayList.get(6));
         Room theUndertomb = new Room("The Undertomb",

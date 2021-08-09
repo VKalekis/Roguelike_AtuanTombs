@@ -96,8 +96,6 @@ public abstract class AbstractPlayer implements Entity, Drawable {
                 if (hitPoints > maxHitPoints) {
                     hitPoints = maxHitPoints;
                 }
-
-
                 break;
             case MP_REPLENISH:
                 if (maxManaPoints != 0) {
@@ -384,10 +382,12 @@ public abstract class AbstractPlayer implements Entity, Drawable {
                 .append("</html>").toString();
     }
 
+    @Override
     public Position getPosition() {
         return position;
     }
 
+    @Override
     public void move(Position position) {
         this.position = position;
     }
@@ -396,6 +396,7 @@ public abstract class AbstractPlayer implements Entity, Drawable {
         this.position = position;
     }
 
+    @Override
     public void takeDamage(int dmg) {
         hitPoints -= (dmg - defense);
     }

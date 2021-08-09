@@ -238,7 +238,7 @@ public class GameState implements PlayerStatusTranscriptWriter, GameLogTranscrip
     public void spawnEnemies() {
         double prob = 0.25 * (1 - Math.exp(-(4.0 * player.getHitPoints()) / player.getMaxHitPoints()));
         //double prob = (0.2 * player.getHitPoints()) / player.getMaxHitPoints();
-        if ((Math.random() < prob) && (enemies.size() < 4)) {
+        if ((Math.random() < prob) && (enemies.size() < 5)) {
             Enemy enemy = enemyFactory.makeEnemy();
             enemy.setStartingPosition(new Position(roomMap.getRandomPosition(MapTileType.FLOOR)));
             sendGameLogTranscript(enemy.getAnnouncementText() + "\n    Enemy " + enemy.getName() + " appeared.\n");
@@ -385,7 +385,7 @@ public class GameState implements PlayerStatusTranscriptWriter, GameLogTranscrip
         List<MapTile> candidateMapTiles;
 
         // Wizard can attack an enemy located at a visible floor.
-        if (player.getClass() == Wizard.class) {
+        if (player.getClass() == Wizard.class || player.getClass() == WizardDebug.class) {
             roomMap.findVisibleTiles(player.getPosition(), player.getVisibility());
             candidateMapTiles = roomMap.getVisibleFloors();
 

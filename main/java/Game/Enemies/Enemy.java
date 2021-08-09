@@ -54,14 +54,17 @@ abstract public class Enemy implements Entity, Drawable {
         return name;
     }
 
+    @Override
     public int dealDamage() {
         return weapon.hit();
     }
 
+    @Override
     public void takeDamage(int damage) {
         hitpoints -= damage;
     }
 
+    @Override
     public Position getPosition() {
         return position;
     }
@@ -84,6 +87,7 @@ abstract public class Enemy implements Entity, Drawable {
         }
     }
 
+    @Override
     public void move(Position position) {
         this.position = position;
     }

@@ -9,8 +9,8 @@ public class MapTile implements Drawable {
 
     private MapTileType mapTileType;
     private MapTileState mapTileState;
-    private Position position;
-    private ArrayList<String> sprites;
+    private final Position position;
+    private final ArrayList<String> sprites;
 
     private int color;
     private int cost;

@@ -4,8 +4,8 @@ Vasilis Kalekis - HA2020507
     * FullGame.java for Game with Starting, Winning and Losing screens.
         * Starting screen
             * 1st TextField: 'Warrior' or 'Wizard' for choosing Player Class.
-            * 2nd TextField: Player name.
-            * 3rd TextField: 'DEBUG' for one-shooting enemies (Player deals 10001 damage). I've implemented it since I don't know if the game is (easily) completable using the specific stats for the player, the enemies and the items.
+            * 2nd TextField: Player name (must be non empty).
+            * 3rd TextField: 'debug' for one-shooting enemies (Player deals 10001 damage). I've implemented it to make the game easier to beat, regardless of the stats for the player, the enemies and the items.
 
     * OnlyGamePanel.java only for Game Panel with no support for winning or losing. (for easier access to game / debugging)
 
@@ -15,7 +15,7 @@ Vasilis Kalekis - HA2020507
 * Controls
 
   | Key        | Action           |
-    | :-------------: |:-------------:|
+  | :-------------: |:-------------:|
   | W/A/S/D  | Player movement |
   | SPACE     | Player attack |   
   | F | Go to next room |
@@ -48,12 +48,12 @@ Vasilis Kalekis - HA2020507
 
 * Enemies
 
-    * Each enemy has an instance of an A* class and runs the A* algorithm at each step to find the best path from his
+    * Each enemy has an instance of the A* class and runs the A* algorithm at each step to find the best path from his
       location to the player. Its next move will be the first move in the optimal path.
-      
-    * Enemies spawn with a probability of: 0.25*(1-exp(-4*player_HP/player_HP_max))
     
     * Every player move triggers the spawning of an enemy, except moving the Inventory Cursor.
+
+    * Enemies spawn with a probability of: 0.25*(1-exp(-4*player_HP/player_HP_max))
       
     * Changed enemy names to match the [sprites](https://0x72.itch.io/dungeontileset-ii) I used, while keeping the same
       stats.
@@ -86,7 +86,7 @@ Vasilis Kalekis - HA2020507
     * 5 potions per map. After entering a new room, the potions are initialized to 5, even if the player has entered the
       room before.
 
-    * Automatically picked up by the player, if the potion can fit in the inventory.
+    * Automatically picked up by the player, if the potion can fit in the Inventory (maximum Inventory size = 10). The dropped potions just disappear.
 
 
 * Weapons / Equippables
@@ -98,7 +98,9 @@ Vasilis Kalekis - HA2020507
         * MAIN_HAND: Sword, Axe, Staff
         * OFF_HAND: Shield
 
-    * The Warrior can find: Sword, Axe, Shield and the Wizard can find: Staff, Shield.
+    * The Warrior can find: Sword, Axe, Shield, the Wizard can find: Staff, Shield.
 
-    * 4 weapons per map, initialized to 4 every time the player enters a room.
+    * 4 equippables per map, initialized to 4 every time the player enters a room.
+    
+    * The dropped equippables are placed on the map, at the player position.
 
