@@ -10,6 +10,7 @@ import java.util.*;
 public class Astar {
     private MapTile start, goal;
 
+
     /* Implementation of A* pathfinding algorithm from maptile start -> maptile goal,
        using the roomMap of the current room.
        https://www.redblobgames.com/pathfinding/a-star/introduction.html

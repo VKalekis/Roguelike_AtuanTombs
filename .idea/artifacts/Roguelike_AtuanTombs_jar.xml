@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Roguelike_AtuanTombs:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Roguelike_AtuanTombs_jar</output-path>
+    <root id="archive" name="Roguelike_AtuanTombs.jar">
+      <element id="module-output" name="Roguelike_AtuanTombs" />
+    </root>
+  </artifact>
+</component>
