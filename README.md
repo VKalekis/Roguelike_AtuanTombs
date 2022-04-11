@@ -1,6 +1,11 @@
-Vasilis Kalekis - HA2020507
+* Game Screenshots
 
-* Files containing main():
+<img src="./screenshots/AtuanTombs_1.png" width="261" height="188">
+
+<img src="./screenshots/AtuanTombs_2.png" width="261" height="188">
+
+
+* Files containing an entry main() function:
     * FullGame.java for Game with Starting, Winning and Losing screens.
         * Starting screen
             * 1st TextField: 'Warrior' or 'Wizard' for choosing Player Class.
@@ -9,9 +14,7 @@ Vasilis Kalekis - HA2020507
 
     * OnlyGamePanel.java only for Game Panel with no support for winning or losing. (for easier access to game / debugging)
 
-
-
-
+    
 * Controls
 
   | Key        | Action           |
